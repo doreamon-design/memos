@@ -1,5 +1,5 @@
 # Build frontend dist.
-FROM node:18-alpine AS frontend
+FROM whatwewant/node:v18-1 AS frontend
 WORKDIR /frontend-build
 
 COPY . .
@@ -20,7 +20,7 @@ COPY --from=frontend /frontend-build/web/dist ./server/dist
 RUN CGO_ENABLED=0 go build -o memos ./main.go
 
 # Make workspace with above generated files.
-FROM alpine:latest AS monolithic
+FROM whatwewant/alpine:v3.17-1 AS monolithic
 WORKDIR /usr/local/memos
 
 RUN apk add --no-cache tzdata
