@@ -112,6 +112,12 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 					})
 
 					logger.Infof("[connect] create user: %s(email: %s)", connectUser.Nickname, connectUser.Email)
+				} else if user.Role != storeX.RoleHost && os.Getenv("ADMIN_EMAIL") == connectUser.Email {
+					user.Role = storeX.RoleHost
+					user, err = s.Store.UpdateUser(ctx, &storeX.UpdateUser{
+						ID:   user.ID,
+						Role: &user.Role,
+					})
 				}
 
 				logger.Infof("[connect] login user: %s(email: %s)", connectUser.Nickname, connectUser.Email)
