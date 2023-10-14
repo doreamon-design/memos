@@ -1,5 +1,5 @@
 # Build frontend dist.
-FROM whatwewant/node:v18-1 AS frontend
+FROM whatwewant/builder-node:v18-1 AS frontend
 WORKDIR /frontend-build
 
 COPY . .
