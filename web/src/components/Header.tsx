@@ -70,16 +70,16 @@ const Header = () => {
     title: t("common.settings"),
     icon: <Icon.Settings className="mr-3 w-6 h-auto opacity-70" />,
   };
-  const signInNavLink: NavLinkItem = {
-    id: "header-auth",
-    path: "/auth",
-    title: t("common.sign-in"),
-    icon: <Icon.LogIn className="mr-3 w-6 h-auto opacity-70" />,
-  };
+  // const signInNavLink: NavLinkItem = {
+  //   id: "header-auth",
+  //   path: "/auth",
+  //   title: t("common.sign-in"),
+  //   icon: <Icon.LogIn className="mr-3 w-6 h-auto opacity-70" />,
+  // };
 
   const navLinks: NavLinkItem[] = user
     ? [homeNavLink, dailyReviewNavLink, resourcesNavLink, exploreNavLink, archivedNavLink, settingNavLink]
-    : [exploreNavLink, signInNavLink];
+    : [exploreNavLink/*, signInNavLink */];
 
   return (
     <div
@@ -98,7 +98,7 @@ const Header = () => {
           showHeader && "translate-x-0 shadow-2xl"
         }`}
       >
-        <UserBanner />
+        {/* <UserBanner /> */}
         <div className="w-full px-2 py-2 flex flex-col justify-start items-start shrink-0 space-y-2">
           {navLinks.map((navLink) => (
             <NavLink

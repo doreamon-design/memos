@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/go-zoox/logger"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -16,6 +18,9 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"go.uber.org/zap"
 
+	"github.com/go-zoox/connect-middleware-for-echo"
+	"github.com/go-zoox/random"
+	"github.com/usememos/memos/api/auth"
 	apiv1 "github.com/usememos/memos/api/v1"
 	apiv2 "github.com/usememos/memos/api/v2"
 	"github.com/usememos/memos/common/log"
@@ -24,6 +29,7 @@ import (
 	"github.com/usememos/memos/server/profile"
 	"github.com/usememos/memos/server/service"
 	"github.com/usememos/memos/store"
+	storeX "github.com/usememos/memos/store"
 )
 
 type Server struct {
@@ -35,6 +41,7 @@ type Server struct {
 	Store   *store.Store
 
 	// API services.
+	apiV1Service *apiv1.APIV1Service
 	apiV2Service *apiv2.APIV2Service
 
 	// Asynchronous runners.
@@ -77,6 +84,74 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 		Timeout: 30 * time.Second,
 	}))
 
+	// ######## CONNECT START
+	e.Use(connect.Create(os.Getenv("SECRET_KEY")))
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if connectUser, err := connect.GetUser(c); err == nil {
+				ctx := c.Request().Context()
+				user, err := s.Store.GetUser(ctx, &storeX.FindUser{
+					Email: &connectUser.Email,
+				})
+				if user == nil || err != nil {
+					role := storeX.RoleUser
+					// if connectUser.Role == "ADMIN" {
+					// 	role = storeX.RoleHost
+					// }
+					if os.Getenv("ADMIN_EMAIL") == connectUser.Email {
+						role = storeX.RoleHost
+					}
+
+					user, err = s.Store.CreateUser(ctx, &storeX.User{
+						Nickname:     connectUser.Nickname,
+						AvatarURL:    connectUser.Avatar,
+						Email:        connectUser.Email,
+						Username:     connectUser.Email,
+						Role:         role,
+						PasswordHash: random.String(32),
+					})
+
+					logger.Infof("[connect] create user: %s(email: %s)", connectUser.Nickname, connectUser.Email)
+				}
+
+				logger.Infof("[connect] login user: %s(email: %s)", connectUser.Nickname, connectUser.Email)
+				accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, time.Now().Add(auth.AccessTokenDuration), []byte(s.Secret))
+				if err != nil {
+					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to generate tokens, err: %s", err)).SetInternal(err)
+				}
+
+				if err := s.apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
+					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
+				}
+				if err := s.apiV1Service.CreateAuthSignInActivity(c, user); err != nil {
+					return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create activity").SetInternal(err)
+				}
+				cookieExp := time.Now().Add(auth.CookieExpDuration)
+
+				// setTokenCookie sets the token to the cookie.
+				setTokenCookie := func(name, token string, expiration time.Time) {
+					cookie := new(http.Cookie)
+					cookie.Name = name
+					cookie.Value = token
+					cookie.Expires = expiration
+					cookie.Path = "/"
+					// Http-only helps mitigate the risk of client side script accessing the protected cookie.
+					cookie.HttpOnly = true
+					cookie.SameSite = http.SameSiteStrictMode
+					c.SetCookie(cookie)
+				}
+
+				setTokenCookie(auth.AccessTokenCookieName, accessToken, cookieExp)
+
+				// @TODO api.userIDContextKey not exported.
+				// c.Set("user-id", user.ID)
+			}
+
+			return next(c)
+		}
+	})
+	// ######## CONNECT END
+
 	serverID, err := s.getSystemServerID(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to retrieve system server ID")
@@ -103,6 +178,8 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	rootGroup := e.Group("")
 	apiV1Service := apiv1.NewAPIV1Service(s.Secret, profile, store, s.telegramBot)
 	apiV1Service.Register(rootGroup)
+
+	s.apiV1Service = apiV1Service
 
 	s.apiV2Service = apiv2.NewAPIV2Service(s.Secret, profile, store, s.Profile.Port+1)
 	// Register gRPC gateway as api v2.

@@ -111,7 +111,7 @@ func (s *APIV1Service) SignIn(c echo.Context) error {
 	if err := s.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
 	}
-	if err := s.createAuthSignInActivity(c, user); err != nil {
+	if err := s.CreateAuthSignInActivity(c, user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create activity").SetInternal(err)
 	}
 	cookieExp := time.Now().Add(auth.CookieExpDuration)
@@ -235,7 +235,7 @@ func (s *APIV1Service) SignInSSO(c echo.Context) error {
 	if err := s.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
 	}
-	if err := s.createAuthSignInActivity(c, user); err != nil {
+	if err := s.CreateAuthSignInActivity(c, user); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create activity").SetInternal(err)
 	}
 	cookieExp := time.Now().Add(auth.CookieExpDuration)
@@ -393,7 +393,7 @@ func (s *APIV1Service) UpsertAccessTokenToStore(ctx context.Context, user *store
 	return nil
 }
 
-func (s *APIV1Service) createAuthSignInActivity(c echo.Context, user *store.User) error {
+func (s *APIV1Service) CreateAuthSignInActivity(c echo.Context, user *store.User) error {
 	ctx := c.Request().Context()
 	payload := ActivityUserAuthSignInPayload{
 		UserID: user.ID,

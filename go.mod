@@ -10,6 +10,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.40.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/go-zoox/connect-middleware-for-echo v1.0.0
+	github.com/go-zoox/logger v1.4.6
+	github.com/go-zoox/random v1.0.4
 	github.com/google/cel-go v0.18.1
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/feeds v1.1.1
@@ -39,18 +42,27 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/bytedance/sonic v1.10.2 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/gin-gonic/gin v1.9.1 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.9 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
+	github.com/go-zoox/chalk v1.0.2 // indirect
+	github.com/go-zoox/connect v1.12.0 // indirect
+	github.com/go-zoox/core-utils v1.2.14 // indirect
+	github.com/go-zoox/crypto v1.1.8 // indirect
+	github.com/go-zoox/datetime v1.2.2 // indirect
+	github.com/go-zoox/jwt v1.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rs/cors v1.10.1 // indirect
@@ -59,6 +71,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
+	golang.org/x/arch v0.5.0 // indirect
 	golang.org/x/image v0.13.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20231009173412-8bfb1ae86b6c // indirect
