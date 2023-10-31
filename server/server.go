@@ -126,9 +126,6 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 				if err := s.apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
 					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
 				}
-				if err := s.apiV1Service.CreateAuthSignInActivity(c, user); err != nil {
-					return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create activity").SetInternal(err)
-				}
 				cookieExp := time.Now().Add(auth.CookieExpDuration)
 
 				// setTokenCookie sets the token to the cookie.
