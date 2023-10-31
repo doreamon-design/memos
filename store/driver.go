@@ -17,9 +17,12 @@ type Driver interface {
 	Vacuum(ctx context.Context) error
 	BackupTo(ctx context.Context, filename string) error
 
+	// current file is driver
+	GetCurrentDBSize(ctx context.Context) (int64, error)
+
 	// Activity model related methods.
 	CreateActivity(ctx context.Context, create *Activity) (*Activity, error)
-	ListActivity(ctx context.Context, find *FindActivity) ([]*Activity, error)
+	ListActivities(ctx context.Context, find *FindActivity) ([]*Activity, error)
 
 	// Resource model related methods.
 	CreateResource(ctx context.Context, create *Resource) (*Resource, error)
@@ -78,4 +81,10 @@ type Driver interface {
 	GetStorage(ctx context.Context, find *FindStorage) (*Storage, error)
 	UpdateStorage(ctx context.Context, update *UpdateStorage) (*Storage, error)
 	DeleteStorage(ctx context.Context, delete *DeleteStorage) error
+
+	// Inbox model related methods.
+	CreateInbox(ctx context.Context, create *Inbox) (*Inbox, error)
+	ListInboxes(ctx context.Context, find *FindInbox) ([]*Inbox, error)
+	UpdateInbox(ctx context.Context, update *UpdateInbox) (*Inbox, error)
+	DeleteInbox(ctx context.Context, delete *DeleteInbox) error
 }

@@ -17,10 +17,11 @@ export function vacuumDatabase() {
   return axios.post("/api/v1/system/vacuum");
 }
 
-export function signin(username: string, password: string) {
+export function signin(username: string, password: string, remember: boolean) {
   return axios.post("/api/v1/auth/signin", {
     username,
     password,
+    remember,
   });
 }
 
@@ -177,16 +178,6 @@ export function patchIdentityProvider(identityProviderPatch: IdentityProviderPat
 
 export function deleteIdentityProvider(id: IdentityProviderId) {
   return axios.delete(`/api/v1/idp/${id}`);
-}
-
-export async function getRepoStarCount() {
-  const { data } = await axios.get(`https://api.github.com/repos/usememos/memos`, {
-    headers: {
-      Accept: "application/vnd.github.v3.star+json",
-      Authorization: "",
-    },
-  });
-  return data.stargazers_count as number;
 }
 
 export async function getRepoLatestTag() {

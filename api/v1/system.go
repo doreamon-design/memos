@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
-	"github.com/usememos/memos/common/log"
+	"github.com/usememos/memos/internal/log"
 	"github.com/usememos/memos/server/profile"
 	"github.com/usememos/memos/store"
 )
@@ -72,7 +72,10 @@ func (s *APIV1Service) GetSystemStatus(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	systemStatus := SystemStatus{
-		Profile: *s.Profile,
+		Profile: profile.Profile{
+			Mode:    s.Profile.Mode,
+			Version: s.Profile.Version,
+		},
 		// Allow sign up by default.
 		AllowSignUp:      true,
 		MaxUploadSizeMiB: 32,

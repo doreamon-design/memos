@@ -24,7 +24,7 @@ func NewTelegramHandler(store *store.Store) *TelegramHandler {
 }
 
 func (t *TelegramHandler) BotToken(ctx context.Context) string {
-	return t.store.GetSystemSettingValueWithDefault(&ctx, apiv1.SystemSettingTelegramBotTokenName.String(), "")
+	return t.store.GetSystemSettingValueWithDefault(ctx, apiv1.SystemSettingTelegramBotTokenName.String(), "")
 }
 
 const (
@@ -57,7 +57,7 @@ func (t *TelegramHandler) MessageHandle(ctx context.Context, bot *telegram.Bot, 
 	}
 
 	if creatorID == 0 {
-		_, err := bot.EditMessage(ctx, message.Chat.ID, reply.MessageID, fmt.Sprintf("Please set your telegram userid %d in UserSetting of Memos", message.From.ID), nil)
+		_, err := bot.EditMessage(ctx, message.Chat.ID, reply.MessageID, fmt.Sprintf("Please set your telegram userid %d in UserSetting of memos", message.From.ID), nil)
 		return err
 	}
 

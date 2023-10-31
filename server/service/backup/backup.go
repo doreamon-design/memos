@@ -1,4 +1,4 @@
-package service
+package backup
 
 import (
 	"context"
@@ -9,10 +9,11 @@ import (
 	"go.uber.org/zap"
 
 	apiv1 "github.com/usememos/memos/api/v1"
-	"github.com/usememos/memos/common/log"
+	"github.com/usememos/memos/internal/log"
 	"github.com/usememos/memos/store"
 )
 
+// nolint
 type BackupRunner struct {
 	Store *store.Store
 }
@@ -24,15 +25,20 @@ func NewBackupRunner(store *store.Store) *BackupRunner {
 }
 
 func (r *BackupRunner) Run(ctx context.Context) {
-	intervalStr := r.Store.GetSystemSettingValueWithDefault(&ctx, apiv1.SystemSettingAutoBackupIntervalName.String(), "")
+	intervalStr := r.Store.GetSystemSettingValueWithDefault(ctx, apiv1.SystemSettingAutoBackupIntervalName.String(), "")
 	if intervalStr == "" {
 		log.Debug("no SystemSettingAutoBackupIntervalName setting, disable auto backup")
 		return
 	}
 
 	interval, err := strconv.Atoi(intervalStr)
-	if err != nil || interval <= 0 {
+	if err != nil || interval < 0 {
 		log.Error(fmt.Sprintf("invalid SystemSettingAutoBackupIntervalName value %s, disable auto backup", intervalStr), zap.Error(err))
+		return
+	}
+
+	if interval == 0 {
+		println("AutoBackupIntervalName value is 0, disable auto backup")
 		return
 	}
 

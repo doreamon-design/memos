@@ -36,10 +36,7 @@ const MemoDetail = () => {
   const memoId = Number(params.memoId);
   const memo = memoStore.state.memos.find((memo) => memo.id === memoId);
   const allowEdit = memo?.creatorUsername === currentUser?.username;
-  const referenceRelations =
-    memo?.relationList.filter(
-      (relation) => relation.memoId === memo?.id && relation.relatedMemoId !== memo?.id && relation.type === "REFERENCE"
-    ) || [];
+  const referenceRelations = memo?.relationList.filter((relation) => relation.type === "REFERENCE") || [];
   const commentRelations = memo?.relationList.filter((relation) => relation.relatedMemoId === memo.id && relation.type === "COMMENT") || [];
   const comments = commentRelations
     .map((relation) => memoStore.state.memos.find((memo) => memo.id === relation.memoId))
@@ -107,30 +104,35 @@ const MemoDetail = () => {
     <>
       <section className="relative top-0 w-full min-h-full overflow-x-hidden bg-zinc-100 dark:bg-zinc-900">
         <div className="relative w-full h-auto mx-auto flex flex-col justify-start items-center bg-white dark:bg-zinc-700">
-          <div className="w-full flex flex-col justify-start items-center py-8">
+          <div className="w-full flex flex-col justify-start items-center pt-16 pb-8">
             <UserAvatar className="!w-20 h-auto mb-2 drop-shadow" avatarUrl={systemStatus.customizedProfile.logoUrl} />
             <p className="text-3xl text-black opacity-80 dark:text-gray-200">{systemStatus.customizedProfile.name}</p>
           </div>
           <div className="relative flex-grow max-w-2xl w-full min-h-full flex flex-col justify-start items-start px-4 pb-6">
-            <div className="w-full mb-4 flex flex-row justify-start items-center mr-1">
-              <span className="text-gray-400 select-none">{getDateTimeString(memo.displayTs)}</span>
-              <Icon.Dot className="w-4 h-auto text-gray-400 dark:text-zinc-400" />
-              <Tooltip title={"Identifier"} placement="top">
-                <span className="text-gray-400 dark:text-gray-400">#{memo.id}</span>
-              </Tooltip>
-            </div>
-            <MemoContent content={memo.content} />
-            <MemoResourceListView resourceList={memo.resourceList} />
-            <MemoRelationListView relationList={referenceRelations} />
             {memo.parent && (
-              <div className="w-full mt-2">
-                <Link to={`/m/${memo.parent.id}`}>
-                  <span className="text-xs text-gray-400 opacity-80">This is a comment of #{memo.parent.id}</span>
+              <div className="w-auto mb-4">
+                <Link
+                  className="px-3 py-1 border rounded-full max-w-xs w-auto text-sm flex flex-row justify-start items-center flex-nowrap text-gray-600 dark:text-gray-400 dark:border-gray-500 hover:shadow hover:opacity-80"
+                  to={`/m/${memo.parent.id}`}
+                >
+                  <Icon.ArrowUpLeftFromCircle className="w-4 h-auto shrink-0 opacity-60" />
+                  <span className="mx-1 opacity-60">#{memo.parent.id}</span>
+                  <span className="truncate">{memo.parent.content}</span>
                 </Link>
               </div>
             )}
+            <div className="w-full mb-4 flex flex-row justify-start items-center mr-1">
+              <span className="text-gray-400 select-none">{getDateTimeString(memo.displayTs)}</span>
+            </div>
+            <MemoContent content={memo.content} />
+            <MemoResourceListView resourceList={memo.resourceList} />
+            <MemoRelationListView memo={memo} relationList={referenceRelations} />
             <div className="w-full mt-4 flex flex-col sm:flex-row justify-start sm:justify-between sm:items-center gap-2">
               <div className="flex flex-row justify-start items-center">
+                <Tooltip title={"Identifier"} placement="top">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">#{memo.id}</span>
+                </Tooltip>
+                <Icon.Dot className="w-4 h-auto text-gray-400 dark:text-zinc-400" />
                 <Link to={`/u/${encodeURIComponent(memo.creatorUsername)}`}>
                   <Tooltip title={"Creator"} placement="top">
                     <span className="flex flex-row justify-start items-center">
@@ -154,8 +156,8 @@ const MemoDetail = () => {
                       }}
                     >
                       {VISIBILITY_SELECTOR_ITEMS.map((item) => (
-                        <Option key={item.value} value={item.value} className="whitespace-nowrap">
-                          {item.text}
+                        <Option key={item} value={item} className="whitespace-nowrap">
+                          {t(`memo.visibility.${item.toLowerCase() as Lowercase<typeof item>}`)}
                         </Option>
                       ))}
                     </Select>
@@ -184,7 +186,7 @@ const MemoDetail = () => {
             </div>
           </div>
         </div>
-        <div className="py-6 w-full border-t dark:border-t-zinc-700">
+        <div className="pt-8 pb-16 w-full border-t dark:border-t-zinc-700">
           <div className="relative mx-auto flex-grow max-w-2xl w-full min-h-full flex flex-col justify-start items-start px-4 gap-y-1">
             {comments.length === 0 ? (
               <div className="w-full flex flex-col justify-center items-center py-6 mb-2">

@@ -33,6 +33,7 @@
     "explore": "Explore",
     "sign-in": "Sign in",
     "sign-in-with": "Sign in with {{provider}}",
+    "remember-me": "Remember me",
     "or": "or",
     "sign-up": "Sign up",
     "sign-out": "Sign out",
@@ -60,7 +61,8 @@
     "beta": "Beta",
     "new": "New",
     "mark": "Mark",
-    "profile": "Profile"
+    "profile": "Profile",
+    "inbox": "Inbox"
   },
   "router": {
     "go-to-home": "Go to Home",
@@ -367,5 +369,8 @@
     "file-exceeds-upload-limit-of": "File {{file}} exceeds upload limit of {{size}} MiB",
     "updating-setting-failed": "Updating setting failed",
     "password-login-disabled": "Can't remove last identity provider when password login is disabled"
+  },
+  "inbox": {
+    "memo-comment": "{{user}} has a comment on your {{memo}}."
   }
 }

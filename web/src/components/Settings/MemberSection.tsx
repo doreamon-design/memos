@@ -13,7 +13,7 @@ interface State {
   createUserPassword: string;
 }
 
-const PreferencesSection = () => {
+const MemberSection = () => {
   const t = useTranslate();
   const userStore = useUserStore();
   const currentUser = userStore.state.user;
@@ -214,4 +214,4 @@ const PreferencesSection = () => {
   );
 };
 
-export default PreferencesSection;
+export default MemberSection;

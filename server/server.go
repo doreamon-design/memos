@@ -2,9 +2,7 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -16,18 +14,17 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	"go.uber.org/zap"
 
 	"github.com/go-zoox/connect-middleware-for-echo"
 	"github.com/go-zoox/random"
 	"github.com/usememos/memos/api/auth"
 	apiv1 "github.com/usememos/memos/api/v1"
 	apiv2 "github.com/usememos/memos/api/v2"
-	"github.com/usememos/memos/common/log"
 	"github.com/usememos/memos/plugin/telegram"
 	"github.com/usememos/memos/server/integration"
 	"github.com/usememos/memos/server/profile"
-	"github.com/usememos/memos/server/service"
+	"github.com/usememos/memos/server/service/backup"
+	"github.com/usememos/memos/server/service/metric"
 	"github.com/usememos/memos/store"
 	storeX "github.com/usememos/memos/store"
 )
@@ -45,7 +42,7 @@ type Server struct {
 	apiV2Service *apiv2.APIV2Service
 
 	// Asynchronous runners.
-	backupRunner *service.BackupRunner
+	backupRunner *backup.BackupRunner
 	telegramBot  *telegram.Bot
 }
 
@@ -61,7 +58,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 		Profile: profile,
 
 		// Asynchronous runners.
-		backupRunner: service.NewBackupRunner(store),
+		backupRunner: backup.NewBackupRunner(store),
 		telegramBot:  telegram.NewBotWithHandler(integration.NewTelegramHandler(store)),
 	}
 
@@ -197,24 +194,10 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	if err := s.createServerStartActivity(ctx); err != nil {
-		return errors.Wrap(err, "failed to create activity")
-	}
-
 	go s.telegramBot.Start(ctx)
 	go s.backupRunner.Run(ctx)
 
-	// Start gRPC server.
-	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Profile.Addr, s.Profile.Port+1))
-	if err != nil {
-		return err
-	}
-	go func() {
-		if err := s.apiV2Service.GetGRPCServer().Serve(listen); err != nil {
-			log.Error("grpc server listen error", zap.Error(err))
-		}
-	}()
-
+	metric.Enqueue("server start")
 	return s.e.Start(fmt.Sprintf("%s:%d", s.Profile.Addr, s.Profile.Port))
 }
 
@@ -275,26 +258,6 @@ func (s *Server) getSystemSecretSessionName(ctx context.Context) (string, error)
 		}
 	}
 	return secretSessionNameValue.Value, nil
-}
-
-func (s *Server) createServerStartActivity(ctx context.Context) error {
-	payload := apiv1.ActivityServerStartPayload{
-		ServerID: s.ID,
-		Profile:  s.Profile,
-	}
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		return errors.Wrap(err, "failed to marshal activity payload")
-	}
-	activity, err := s.Store.CreateActivity(ctx, &store.Activity{
-		Type:    apiv1.ActivityServerStart.String(),
-		Level:   apiv1.ActivityInfo.String(),
-		Payload: string(payloadBytes),
-	})
-	if err != nil || activity == nil {
-		return errors.Wrap(err, "failed to create activity")
-	}
-	return err
 }
 
 func grpcRequestSkipper(c echo.Context) bool {

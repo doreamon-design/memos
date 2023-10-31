@@ -23,13 +23,15 @@ type Profile struct {
 	Port int `json:"-"`
 	// Data is the data directory
 	Data string `json:"-"`
-	// DSN points to where Memos stores its own data
-	DSN string `json:"dsn"`
+	// DSN points to where memos stores its own data
+	DSN string `json:"-"`
 	// Driver is the database driver
 	// sqlite, mysql
-	Driver string `json:"driver"`
+	Driver string `json:"-"`
 	// Version is the current version of server
 	Version string `json:"version"`
+	// Metric indicate the metric collection is enabled or not
+	Metric bool `json:"-"`
 }
 
 func (p *Profile) IsDev() bool {

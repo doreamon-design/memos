@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useLayoutStore } from "@/store/module";
+import useInboxStore from "@/store/v1/inbox";
+import { Inbox_Status } from "@/types/proto/api/v2/inbox_service";
 import { useTranslate } from "@/utils/i18n";
 import { resolution } from "@/utils/layout";
 import Icon from "./Icon";
@@ -19,8 +21,26 @@ const Header = () => {
   const t = useTranslate();
   const location = useLocation();
   const layoutStore = useLayoutStore();
-  const showHeader = layoutStore.state.showHeader;
   const user = useCurrentUser();
+  const inboxStore = useInboxStore();
+  const showHeader = layoutStore.state.showHeader;
+  const hasUnreadInbox = inboxStore.inboxes.some((inbox) => inbox.status === Inbox_Status.UNREAD);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    inboxStore.fetchInboxes();
+    // Fetch inboxes every 5 minutes.
+    const timer = setInterval(async () => {
+      await inboxStore.fetchInboxes();
+    }, 1000 * 60 * 5);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -30,8 +50,12 @@ const Header = () => {
         layoutStore.setHeaderStatus(true);
       }
     };
-    window.addEventListener("resize", handleWindowResize);
     handleWindowResize();
+    window.addEventListener("resize", handleWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+    };
   }, [location]);
 
   const homeNavLink: NavLinkItem = {
@@ -51,6 +75,19 @@ const Header = () => {
     path: "/resources",
     title: t("common.resources"),
     icon: <Icon.Paperclip className="mr-3 w-6 h-auto opacity-70" />,
+  };
+  const inboxNavLink: NavLinkItem = {
+    id: "header-inbox",
+    path: "/inbox",
+    title: t("common.inbox"),
+    icon: (
+      <>
+        <div className="relative">
+          <Icon.Bell className="mr-3 w-6 h-auto opacity-70" />
+          {hasUnreadInbox && <div className="absolute top-0 left-5 w-2 h-2 rounded-full bg-blue-500"></div>}
+        </div>
+      </>
+    ),
   };
   const exploreNavLink: NavLinkItem = {
     id: "header-explore",
@@ -78,17 +115,17 @@ const Header = () => {
   // };
 
   const navLinks: NavLinkItem[] = user
-    ? [homeNavLink, dailyReviewNavLink, resourcesNavLink, exploreNavLink, archivedNavLink, settingNavLink]
+    ? [homeNavLink, dailyReviewNavLink, resourcesNavLink, exploreNavLink, inboxNavLink, archivedNavLink, settingNavLink]
     : [exploreNavLink/*, signInNavLink */];
 
   return (
     <div
-      className={`fixed sm:sticky top-0 left-0 w-full sm:w-56 h-full shrink-0 pointer-events-none sm:pointer-events-auto z-10 ${
+      className={`fixed sm:sticky top-0 left-0 w-full sm:w-56 h-screen shrink-0 pointer-events-none sm:pointer-events-auto z-10 ${
         showHeader && "pointer-events-auto"
       }`}
     >
       <div
-        className={`fixed top-0 left-0 w-full h-full opacity-0 pointer-events-none transition-opacity duration-300 sm:!hidden ${
+        className={`fixed top-0 left-0 w-full h-full max-h-screen opacity-0 pointer-events-none transition-opacity duration-300 sm:!hidden ${
           showHeader && "opacity-60 pointer-events-auto"
         }`}
         onClick={() => layoutStore.setHeaderStatus(false)}

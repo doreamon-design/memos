@@ -12,9 +12,10 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/usememos/memos/common/log"
+	"github.com/usememos/memos/internal/log"
 	"github.com/usememos/memos/server"
 	_profile "github.com/usememos/memos/server/profile"
+	"github.com/usememos/memos/server/service/metric"
 	"github.com/usememos/memos/store"
 	"github.com/usememos/memos/store/db"
 )
@@ -31,13 +32,14 @@ const (
 )
 
 var (
-	profile *_profile.Profile
-	mode    string
-	addr    string
-	port    int
-	data    string
-	driver  string
-	dsn     string
+	profile      *_profile.Profile
+	mode         string
+	addr         string
+	port         int
+	data         string
+	driver       string
+	dsn          string
+	enableMetric bool
 
 	rootCmd = &cobra.Command{
 		Use:   "memos",
@@ -62,6 +64,14 @@ var (
 				cancel()
 				log.Error("failed to create server", zap.Error(err))
 				return
+			}
+
+			if profile.Metric {
+				println("metric collection is enabled")
+				// nolint
+				metric.NewMetricClient(s.ID, *profile)
+			} else {
+				println("metric collection is disabled")
 			}
 
 			c := make(chan os.Signal, 1)
@@ -105,6 +115,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&data, "data", "d", "", "data directory")
 	rootCmd.PersistentFlags().StringVarP(&driver, "driver", "", "", "database driver")
 	rootCmd.PersistentFlags().StringVarP(&dsn, "dsn", "", "", "database source name(aka. DSN)")
+	rootCmd.PersistentFlags().BoolVarP(&enableMetric, "metric", "", true, "allow metric collection")
 
 	err := viper.BindPFlag("mode", rootCmd.PersistentFlags().Lookup("mode"))
 	if err != nil {
@@ -130,11 +141,16 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	err = viper.BindPFlag("metric", rootCmd.PersistentFlags().Lookup("metric"))
+	if err != nil {
+		panic(err)
+	}
 
 	viper.SetDefault("mode", "demo")
 	viper.SetDefault("driver", "sqlite")
 	viper.SetDefault("addr", "")
 	viper.SetDefault("port", 8081)
+	viper.SetDefault("metric", true)
 	viper.SetEnvPrefix("memos")
 }
 
@@ -156,6 +172,7 @@ func initConfig() {
 	println("mode:", profile.Mode)
 	println("driver:", profile.Driver)
 	println("version:", profile.Version)
+	println("metric:", profile.Metric)
 	println("---")
 }
 

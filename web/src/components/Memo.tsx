@@ -25,6 +25,7 @@ import "@/less/memo.less";
 interface Props {
   memo: Memo;
   showVisibility?: boolean;
+  showPinnedStyle?: boolean;
   lazyRendering?: boolean;
 }
 
@@ -43,9 +44,7 @@ const Memo: React.FC<Props> = (props: Props) => {
   const memoContainerRef = useRef<HTMLDivElement>(null);
   const readonly = memo.creatorUsername !== user?.username;
   const creator = userV1Store.getUserByUsername(memo.creatorUsername);
-  const referenceRelations = memo.relationList.filter(
-    (relation) => relation.memoId === memo.id && relation.relatedMemoId !== memo.id && relation.type === "REFERENCE"
-  );
+  const referenceRelations = memo.relationList.filter((relation) => relation.type === "REFERENCE");
   const commentRelations = memo.relationList.filter((relation) => relation.relatedMemoId === memo.id && relation.type === "COMMENT");
 
   // Prepare memo creator.
@@ -229,7 +228,7 @@ const Memo: React.FC<Props> = (props: Props) => {
 
   return (
     <>
-      <div className={`memo-wrapper ${"memos-" + memo.id} ${memo.pinned && !readonly ? "pinned" : ""}`} ref={memoContainerRef}>
+      <div className={`memo-wrapper ${"memos-" + memo.id} ${memo.pinned && props.showPinnedStyle ? "pinned" : ""}`} ref={memoContainerRef}>
         <div className="memo-top-wrapper">
           <div className="w-full max-w-[calc(100%-20px)] flex flex-row justify-start items-center mr-1">
             <span className="text-sm text-gray-400 select-none" onClick={handleGotoMemoDetailPage}>
@@ -285,11 +284,17 @@ const Memo: React.FC<Props> = (props: Props) => {
           onMemoContentDoubleClick={handleMemoContentDoubleClick}
         />
         <MemoResourceListView resourceList={memo.resourceList} />
-        <MemoRelationListView relationList={referenceRelations} />
+        <MemoRelationListView memo={memo} relationList={referenceRelations} />
         <div className="mt-4 w-full flex flex-row justify-between items-center gap-2">
           <div className="flex flex-row justify-start items-center">
             {creator && (
               <>
+                <Link className="flex flex-row justify-start items-center" to={`/m/${memo.id}`}>
+                  <Tooltip title={"Identifier"} placement="top">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">#{memo.id}</span>
+                  </Tooltip>
+                </Link>
+                <Icon.Dot className="w-4 h-auto text-gray-400 dark:text-zinc-400" />
                 <Link to={`/u/${encodeURIComponent(memo.creatorUsername)}`}>
                   <Tooltip title={"Creator"} placement="top">
                     <span className="flex flex-row justify-start items-center">
@@ -298,7 +303,7 @@ const Memo: React.FC<Props> = (props: Props) => {
                     </span>
                   </Tooltip>
                 </Link>
-                {memo.pinned && (
+                {memo.pinned && props.showPinnedStyle && (
                   <>
                     <Icon.Dot className="w-4 h-auto text-gray-400 dark:text-zinc-400" />
                     <Tooltip title={"Pinned"} placement="top">

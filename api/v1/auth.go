@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/usememos/memos/api/auth"
-	"github.com/usememos/memos/common/util"
+	"github.com/usememos/memos/internal/util"
 	"github.com/usememos/memos/plugin/idp"
 	"github.com/usememos/memos/plugin/idp/oauth2"
 	storepb "github.com/usememos/memos/proto/gen/store"
@@ -28,6 +28,7 @@ var (
 type SignIn struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Remember bool   `json:"remember"`
 }
 
 type SSOSignIn struct {
@@ -104,7 +105,12 @@ func (s *APIV1Service) SignIn(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Incorrect login credentials, please try again")
 	}
 
-	accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, time.Now().Add(auth.AccessTokenDuration), []byte(s.Secret))
+	var expireAt time.Time
+	if !signin.Remember {
+		expireAt = time.Now().Add(auth.AccessTokenDuration)
+	}
+
+	accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, expireAt, []byte(s.Secret))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to generate tokens, err: %s", err)).SetInternal(err)
 	}
@@ -359,9 +365,6 @@ func (s *APIV1Service) SignUp(c echo.Context) error {
 	}
 	if err := s.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
-	}
-	if err := s.createAuthSignUpActivity(c, user); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create activity").SetInternal(err)
 	}
 	cookieExp := time.Now().Add(auth.CookieExpDuration)
 	setTokenCookie(c, auth.AccessTokenCookieName, accessToken, cookieExp)

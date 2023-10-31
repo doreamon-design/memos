@@ -6,10 +6,16 @@
     "other-projects": "Drugi projekti",
     "powered-by": "Powered by"
   },
+  "amount-text": {
+    "memo": "MEMO"
+  },
   "auth": {
+    "create-your-account": "Stvori svoj račun",
     "host-tip": "Registriraš se kao Vlasnik sajta.",
     "new-password": "Nova lozinka",
-    "repeat-new-password": "Ponovi novu lozinku"
+    "repeat-new-password": "Ponovi novu lozinku",
+    "sign-in-tip": "Račun već postoji?",
+    "sign-up-tip": "Još nemaš račun?"
   },
   "common": {
     "about": "O aplikaciji",
@@ -42,12 +48,15 @@
     "link": "Link",
     "mark": "Mark",
     "name": "Ime",
+    "new": "Novi",
     "nickname": "Nadimak",
     "null": "Ništa",
     "or": "ili",
     "password": "Lozinka",
     "pin": "Pinaj",
     "preview": "Pregled",
+    "profile": "Profil",
+    "remember-me": "Zapamti me",
     "rename": "Preimenuj",
     "reset": "Resetiraj",
     "resources": "Privitci",
@@ -78,7 +87,7 @@
   },
   "days": {
     "fri": "Pet",
-    "mon": "Pon",
+    "mon": "Prijava lozinkom je onemogućena, budi pažljiv kad mičeš identity providers",
     "sat": "Sub",
     "sun": "Ned",
     "thu": "Čet",
@@ -103,15 +112,19 @@
   },
   "heatmap": {
     "day": "dan",
-    "days": "dani",
+    "days": "dana",
     "memo-in": "memo u {{period}}",
     "memo-on": "{{amount}} memo  {{date}}",
     "memos-in": "memoa u {{period}}",
-    "memos-on": "{{amount}} memos  {{date}}"
+    "memos-on": "{{amount}} memoa  {{date}}"
   },
   "memo": {
     "archived-at": "Arhivirano u",
     "archived-memos": "Arhivirani Memoi",
+    "comment": {
+      "no-comment": "Nema komentara",
+      "self": "Komentari"
+    },
     "copy-link": "Kopiraj Link",
     "delete-confirm": "Jesi li siguran?\n\nOVA AKCIJA JE NEPOVRATNA❗",
     "delete-memo": "Obriši Memo",
@@ -148,8 +161,10 @@
     "memo-updated-datetime": "Datum/vrijeme stvaranja memoa je promijenjen.",
     "memos-ready": "svi memoi su spremni 🎉",
     "new-password-not-match": "Nove lozinke nisu jednake.",
+    "no-data": "Nisu nađeni podaci.",
     "page-not-found": "404 - Stranica nije nađena 😥",
     "password-changed": "Lozinka je promijenjena",
+    "password-login-disabled": "last identity provider se ne smije maknuti kada je prijava lozinkom onemogućena",
     "password-not-match": "Lozinke nisu jednake.",
     "private-only": "Ovaj je memo privatan.",
     "resource-filename-updated": "Resource filename je promijenjeno.",
@@ -165,10 +180,11 @@
     "succeed-update-customized-profile": "Profil je uspješno izmijenjen.",
     "succeed-vacuum-database": "Vakuumiranje databaze je uspjelo",
     "update-succeed": "Obnavljanje aplikacije je uspjelo!🎉",
+    "updating-setting-failed": "Obnavljanje postavki nije uspjelo",
     "user-not-found": "Korisnik nije nađen"
   },
   "resource": {
-    "clear": "Clear",
+    "clear": "Očisti",
     "copy-link": "Kopiraj link",
     "create-dialog": {
       "external-link": {
@@ -184,24 +200,28 @@
         "choose": "Odaberi fajl...",
         "option": "Lokalni fajl"
       },
-      "title": "Stvori Resource",
+      "title": "Stvori Resurs",
       "upload-method": "Upload metoda"
     },
-    "delete-resource": "Obriši Resource",
+    "delete-resource": "Da li sigurno želiš obrisati ove neupotrebljavane resurse ?Obriši Resource",
     "delete-selected-resources": "Delete Selected Resources",
     "fetching-data": "dohvaćanje podataka...",
     "file-drag-drop-prompt": "Povuci i potegni svoj fajl ovdje kako bi bio prenesen",
     "linked-amount": "Linked amount",
     "no-files-selected": "Nema odabranih fajlova❗",
-    "no-resources": "Nema resursa.",
+    "no-resources": "OVA AKCIJA JE NEPOVRATNA ❗Nema resursa.",
     "no-unused-resources": "Nema neiskorištenih resources",
     "reset-link": "Resetiraj link",
-    "reset-link-prompt": "Želiš li sigurno resetirati link?\nOvo će break sve trenutne link usages.\n\nTHIS ACTION IS IRREVERSIBLE❗",
+    "reset-link-prompt": "Želiš li sigurno resetirati link?\nOvo će break sve trenutne link usages.\n\nOVO JE NEPOVRATNA AKCIJA❗",
     "reset-resource-link": "Resetiraj Resource link",
     "search-bar-placeholder": "Nađi privitke",
     "upload-successfully": "Upload je uspješan",
     "warning-text": "Želiš li sigurno izbrisati ovaj resource?\n\nOVO JE NEPOVRATNA AKCIJA❗",
     "warning-text-unused": "Are you sure to delete these unused resources?\n\nOVO JE NEPOVRATNA AKCIJA❗"
+  },
+  "router": {
+    "back-to-top": "Na vrh",
+    "go-to-home": "Kući"
   },
   "setting": {
     "account-section": {
@@ -225,7 +245,7 @@
     "member-list": "Lista članova",
     "member-section": {
       "archive-member": "Arhiviraj člana",
-      "archive-warning": "❗ Želiš li stvarno arhivirati {{username}}?",
+      "archive-warning": "Želiš li stvarno arhivirati {{username}}?",
       "create-a-member": "Stvori člana",
       "delete-member": "Obriši člana",
       "delete-warning": "❗ Želiš li stvarno obrisati {{username}}?\n\nOVA AKCIJA JE NEPOVRATNA ❗"
@@ -257,8 +277,8 @@
       "create-sso": "Stvori SSO",
       "custom": "Custom",
       "delete-sso": "Potvrdi brisanje",
-      "display-name": "Display Ime",
-      "identifier": "Identifier",
+      "display-name": "Prikaži ime",
+      "identifier": "Identifikator",
       "identifier-filter": "Identifier Filter",
       "redirect-url": "Preusmjeri URL",
       "scopes": "Scopes",
@@ -310,6 +330,8 @@
       "additional-style": "Dodatni stil",
       "additional-style-placeholder": "Dodatni CSS kod",
       "allow-user-signup": "Dopusti registraciju drugih korisnika",
+      "auto-backup-interval": "Interval u kojem će se izvršavati automatski backup (u sekundama)",
+      "auto-backup-interval-hint": "Unesi 0 kako bi onemogućio automatski backup. Nakon mijenjanja ove vrijednosti potreban je reboot.",
       "customize-server": {
         "appearance": "Izgled Servera",
         "default": "Osnovno je memoi",
@@ -319,8 +341,11 @@
         "title": "Uredi Server"
       },
       "database-file-size": "Veličina baze podataka",
+      "disable-password-login": "Onemogući prijavu putem lozinke",
+      "disable-password-login-final-warning": "Molimo unesi \"POTVRDI\" ako znaš što radiš.",
       "disable-public-memos": "Onemogući javne memoe",
       "display-with-updated-time": "Prikaži sa obnovljenim vremenom",
+      "enable-password-login": "Omogući prijavu lozinkom",
       "ignore-version-upgrade": "Ignoriraj nadogradnju",
       "max-upload-size": "Maximalna veličina uploada (MiB)",
       "max-upload-size-hint": "Preporučena vrijednost je 32 MiB.",
@@ -333,7 +358,12 @@
   "tag-list": {
     "all-tags": "Svi Tagovi",
     "create-tag": "Stvori Tag",
+    "hide": "Sakrij",
+    "invalid-tag-name": "Ime taga nije valjano",
+    "save-all": "Sačuvaj sve",
+    "show": "Pokaži",
     "tag-name": "IME_TAGA",
+    "tag-suggestions": "Prijedlozi tagova",
     "tip-text": "Unesi `#tag` kako bi stvorio"
   }
 }

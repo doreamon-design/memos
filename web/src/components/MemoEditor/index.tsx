@@ -1,5 +1,5 @@
-import { Select, Option, Button } from "@mui/joy";
-import { isNumber, last, uniq } from "lodash-es";
+import { Select, Option, Button, IconButton, Divider } from "@mui/joy";
+import { isNumber, last, uniq, uniqBy } from "lodash-es";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { getMatchedNodes } from "@/labs/marked";
 import { useFilterStore, useGlobalStore, useMemoStore, useResourceStore, useTagStore, useUserStore } from "@/store/module";
 import { Resource } from "@/types/proto/api/v2/resource_service";
 import { useTranslate } from "@/utils/i18n";
+import showCreateMemoRelationDialog from "../CreateMemoRelationDialog";
 import showCreateResourceDialog from "../CreateResourceDialog";
 import Icon from "../Icon";
 import VisibilityIcon from "../VisibilityIcon";
@@ -23,6 +24,7 @@ const emptyOlReg = /^(\d+)\. $/;
 
 interface Props {
   className?: string;
+  editorClassName?: string;
   cacheKey?: string;
   memoId?: MemoId;
   relationList?: MemoRelation[];
@@ -38,7 +40,7 @@ interface State {
 }
 
 const MemoEditor = (props: Props) => {
-  const { className, cacheKey, memoId, onConfirm } = props;
+  const { className, editorClassName, cacheKey, memoId, onConfirm } = props;
   const { i18n } = useTranslation();
   const t = useTranslate();
   const [contentCache, setContentCache] = useLocalStorage<string>(`memo-editor-${cacheKey}`, "");
@@ -181,6 +183,23 @@ const MemoEditor = (props: Props) => {
     });
   };
 
+  const handleAddMemoRelationBtnClick = () => {
+    showCreateMemoRelationDialog({
+      onConfirm: (memoIdList) => {
+        setState((prevState) => ({
+          ...prevState,
+          relationList: uniqBy(
+            [
+              ...memoIdList.map((id) => ({ memoId: memoId || UNKNOWN_ID, relatedMemoId: id, type: "REFERENCE" as MemoRelationType })),
+              ...state.relationList,
+            ].filter((relation) => relation.relatedMemoId !== (memoId || UNKNOWN_ID)),
+            "relatedMemoId"
+          ),
+        }));
+      },
+    });
+  };
+
   const handleSetResourceList = (resourceList: Resource[]) => {
     setState((prevState) => ({
       ...prevState,
@@ -228,8 +247,8 @@ const MemoEditor = (props: Props) => {
         uploadedResourceList.push(resource);
         if (memoId) {
           await resourceStore.updateResource({
-            id: resource.id,
             resource: Resource.fromPartial({
+              id: resource.id,
               memoId,
             }),
             updateMask: ["memo_id"],
@@ -319,7 +338,6 @@ const MemoEditor = (props: Props) => {
     setState((prevState) => ({
       ...prevState,
       resourceList: [],
-      relationList: [],
     }));
     editorRef.current?.setContent("");
     clearContentQueryParam();
@@ -378,7 +396,7 @@ const MemoEditor = (props: Props) => {
 
   const editorConfig = useMemo(
     () => ({
-      className: "",
+      className: editorClassName ?? "",
       initialContent: "",
       placeholder: t("editor.placeholder"),
       onContentChange: handleContentChange,
@@ -405,20 +423,36 @@ const MemoEditor = (props: Props) => {
       <div className="relative w-full flex flex-row justify-between items-center pt-2 z-1">
         <div className="flex flex-row justify-start items-center">
           <TagSelector onTagSelectorClick={(tag) => handleTagSelectorClick(tag)} />
-          <button className="flex flex-row justify-center items-center p-1 w-auto h-auto mr-1 select-none rounded cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-zinc-800 hover:shadow">
-            <Icon.Paperclip className="w-5 h-5 mx-auto" onClick={handleUploadFileBtnClick} />
-          </button>
-          <button className="flex flex-row justify-center items-center p-1 w-auto h-auto mr-1 select-none rounded cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-zinc-800 hover:shadow">
-            <Icon.CheckSquare className="w-5 h-5 mx-auto" onClick={handleCheckBoxBtnClick} />
-          </button>
-          <button className="flex flex-row justify-center items-center p-1 w-auto h-auto mr-1 select-none rounded cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-zinc-800 hover:shadow">
-            <Icon.Code className="w-5 h-5 mx-auto" onClick={handleCodeBlockBtnClick} />
-          </button>
+          <IconButton
+            className="flex flex-row justify-center items-center p-1 w-auto h-auto mr-1 select-none rounded cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-zinc-800 hover:shadow"
+            onClick={handleUploadFileBtnClick}
+          >
+            <Icon.Image className="w-5 h-5 mx-auto" />
+          </IconButton>
+          <IconButton
+            className="flex flex-row justify-center items-center p-1 w-auto h-auto mr-1 select-none rounded cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-zinc-800 hover:shadow"
+            onClick={handleAddMemoRelationBtnClick}
+          >
+            <Icon.Link className="w-5 h-5 mx-auto" />
+          </IconButton>
+          <IconButton
+            className="flex flex-row justify-center items-center p-1 w-auto h-auto mr-1 select-none rounded cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-zinc-800 hover:shadow"
+            onClick={handleCheckBoxBtnClick}
+          >
+            <Icon.CheckSquare className="w-5 h-5 mx-auto" />
+          </IconButton>
+          <IconButton
+            className="flex flex-row justify-center items-center p-1 w-auto h-auto mr-1 select-none rounded cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-zinc-800 hover:shadow"
+            onClick={handleCodeBlockBtnClick}
+          >
+            <Icon.Code className="w-5 h-5 mx-auto" />
+          </IconButton>
         </div>
       </div>
       <ResourceListView resourceList={state.resourceList} setResourceList={handleSetResourceList} />
       <RelationListView relationList={referenceRelations} setRelationList={handleSetRelationList} />
-      <div className="w-full flex flex-row justify-between items-center py-3 mt-2 border-t border-t-gray-100 dark:border-t-zinc-500">
+      <Divider className="!mt-2" />
+      <div className="w-full flex flex-row justify-between items-center py-3 dark:border-t-zinc-500">
         <div className="relative flex flex-row justify-start items-center" onFocus={(e) => e.stopPropagation()}>
           <Select
             variant="plain"
@@ -431,8 +465,8 @@ const MemoEditor = (props: Props) => {
             }}
           >
             {VISIBILITY_SELECTOR_ITEMS.map((item) => (
-              <Option key={item.value} value={item.value} className="whitespace-nowrap">
-                {item.text}
+              <Option key={item} value={item} className="whitespace-nowrap">
+                {t(`memo.visibility.${item.toLowerCase() as Lowercase<typeof item>}`)}
               </Option>
             ))}
           </Select>
