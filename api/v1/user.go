@@ -203,6 +203,11 @@ func (s *APIV1Service) GetCurrentUser(c echo.Context) error {
 	}
 	userSettingList := []*UserSetting{}
 	for _, userSetting := range list {
+		// @TODO ignore access tokens, too many
+		if userSetting.Key == "USER_SETTING_ACCESS_TOKENS" {
+			continue
+		}
+
 		userSettingList = append(userSettingList, convertUserSettingFromStore(userSetting))
 	}
 	userMessage := convertUserFromStore(user)
