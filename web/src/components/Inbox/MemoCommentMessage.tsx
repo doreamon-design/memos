@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { activityServiceClient } from "@/grpcweb";
 import useNavigateTo from "@/hooks/useNavigateTo";
-import useInboxStore from "@/store/v1/inbox";
-import { extractUsernameFromName } from "@/store/v1/user";
-import { Activity } from "@/types/proto/api/v2/activity_service";
+import { useInboxStore, extractUsernameFromName, useMemoStore } from "@/store/v1";
 import { Inbox, Inbox_Status } from "@/types/proto/api/v2/inbox_service";
+import { Memo } from "@/types/proto/api/v2/memo_service";
 import { useTranslate } from "@/utils/i18n";
 import Icon from "../Icon";
 
@@ -19,27 +18,36 @@ const MemoCommentMessage = ({ inbox }: Props) => {
   const t = useTranslate();
   const navigateTo = useNavigateTo();
   const inboxStore = useInboxStore();
-  const [activity, setActivity] = useState<Activity | undefined>(undefined);
+  const memoStore = useMemoStore();
+  const [relatedMemo, setRelatedMemo] = useState<Memo | undefined>(undefined);
 
   useEffect(() => {
     if (!inbox.activityId) {
       return;
     }
 
-    activityServiceClient
-      .getActivity({
+    (async () => {
+      const { activity } = await activityServiceClient.getActivity({
         id: inbox.activityId,
-      })
-      .then(({ activity }) => {
-        setActivity(activity);
       });
+      if (!activity) {
+        return;
+      }
+      if (activity.payload?.memoComment?.relatedMemoId) {
+        const memo = await memoStore.getOrFetchMemoById(activity.payload?.memoComment?.relatedMemoId, {
+          skipStore: true,
+        });
+        setRelatedMemo(memo);
+      }
+    })();
   }, [inbox.activityId]);
 
-  const handleNavigateToMemo = () => {
-    if (!activity?.payload?.memoComment?.relatedMemoId) {
+  const handleNavigateToMemo = async () => {
+    if (!relatedMemo) {
       return;
     }
-    navigateTo(`/m/${activity?.payload?.memoComment?.relatedMemoId}`);
+
+    navigateTo(`/m/${relatedMemo.name}`);
     if (inbox.status === Inbox_Status.UNREAD) {
       handleArchiveMessage(true);
     }
@@ -51,7 +59,7 @@ const MemoCommentMessage = ({ inbox }: Props) => {
         name: inbox.name,
         status: Inbox_Status.ARCHIVED,
       },
-      ["status"]
+      ["status"],
     );
     if (!silence) {
       toast.success("Archived");
@@ -65,7 +73,7 @@ const MemoCommentMessage = ({ inbox }: Props) => {
           "shrink-0 mt-2 p-2 rounded-full border",
           inbox.status === Inbox_Status.UNREAD
             ? "border-blue-600 text-blue-600 bg-blue-50 dark:bg-zinc-800"
-            : "border-gray-400 text-gray-400 bg-gray-50 dark:bg-zinc-800"
+            : "border-gray-500 text-gray-500 bg-gray-50 dark:bg-zinc-800",
         )}
       >
         <Tooltip title={"Comment"} placement="bottom">
@@ -74,8 +82,8 @@ const MemoCommentMessage = ({ inbox }: Props) => {
       </div>
       <div
         className={classNames(
-          "border w-full p-3 px-4 rounded-lg flex flex-col justify-start items-start gap-2 dark:border-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-800",
-          inbox.status !== Inbox_Status.UNREAD && "opacity-60"
+          "border w-full p-3 px-4 rounded-lg flex flex-col justify-start items-start gap-2 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700",
+          inbox.status !== Inbox_Status.UNREAD && "opacity-60",
         )}
       >
         <div className="w-full flex flex-row justify-between items-center">
@@ -97,7 +105,7 @@ const MemoCommentMessage = ({ inbox }: Props) => {
         >
           {t("inbox.memo-comment", {
             user: extractUsernameFromName(inbox.sender),
-            memo: `memo#${activity?.payload?.memoComment?.relatedMemoId}`,
+            memo: `memos#${relatedMemo?.name}`,
           })}
         </p>
       </div>

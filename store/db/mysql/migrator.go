@@ -12,14 +12,15 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/usememos/memos/server/version"
-)
-
-const (
-	latestSchemaFileName = "LATEST__SCHEMA.sql"
+	"github.com/usememos/memos/store"
 )
 
 //go:embed migration
 var migrationFS embed.FS
+
+const (
+	latestSchemaFileName = "LATEST__SCHEMA.sql"
+)
 
 func (d *DB) Migrate(ctx context.Context) error {
 	if d.profile.IsDev() {
@@ -53,8 +54,6 @@ func (d *DB) nonProdMigrate(ctx context.Context) error {
 		return nil
 	}
 
-	println("no tables in the database. start migration")
-
 	buf, err := migrationFS.ReadFile("migration/dev/" + latestSchemaFileName)
 	if err != nil {
 		return errors.Errorf("failed to read latest schema file: %s", err)
@@ -64,31 +63,22 @@ func (d *DB) nonProdMigrate(ctx context.Context) error {
 	if _, err := d.db.ExecContext(ctx, stmt); err != nil {
 		return errors.Errorf("failed to exec SQL %s: %s", stmt, err)
 	}
-
-	// In demo mode, we should seed the database.
-	if d.profile.Mode == "demo" {
-		if err := d.seed(ctx); err != nil {
-			return errors.Wrap(err, "failed to seed")
-		}
-	}
 	return nil
 }
 
 func (d *DB) prodMigrate(ctx context.Context) error {
 	currentVersion := version.GetCurrentVersion(d.profile.Mode)
-	migrationHistoryList, err := d.FindMigrationHistoryList(ctx, &MigrationHistoryFind{})
+	migrationHistoryList, err := d.FindMigrationHistoryList(ctx, &store.FindMigrationHistory{})
 	// If there is no migration history, we should apply the latest schema.
 	if err != nil || len(migrationHistoryList) == 0 {
 		buf, err := migrationFS.ReadFile("migration/prod/" + latestSchemaFileName)
 		if err != nil {
 			return errors.Errorf("failed to read latest schema file: %s", err)
 		}
-
-		stmt := string(buf)
-		if _, err := d.db.ExecContext(ctx, stmt); err != nil {
-			return errors.Errorf("failed to exec SQL %s: %s", stmt, err)
+		if _, err := d.db.ExecContext(ctx, string(buf)); err != nil {
+			return errors.Errorf("failed to exec latest schema: %s", err)
 		}
-		if _, err := d.UpsertMigrationHistory(ctx, &MigrationHistoryUpsert{
+		if _, err := d.UpsertMigrationHistory(ctx, &store.UpsertMigrationHistory{
 			Version: currentVersion,
 		}); err != nil {
 			return errors.Wrap(err, "failed to upsert migration history")
@@ -106,17 +96,17 @@ func (d *DB) prodMigrate(ctx context.Context) error {
 		return nil
 	}
 
-	println("start migrate")
+	fmt.Println("start to migrate database schema")
 	for _, minorVersion := range getMinorVersionList() {
 		normalizedVersion := minorVersion + ".0"
 		if version.IsVersionGreaterThan(normalizedVersion, latestMigrationHistoryVersion) && version.IsVersionGreaterOrEqualThan(currentVersion, normalizedVersion) {
-			println("applying migration for", normalizedVersion)
+			fmt.Println("applying migration of", normalizedVersion)
 			if err := d.applyMigrationForMinorVersion(ctx, minorVersion); err != nil {
 				return errors.Wrap(err, "failed to apply minor version migration")
 			}
 		}
 	}
-	println("end migrate")
+	fmt.Println("end migrate")
 	return nil
 }
 
@@ -145,39 +135,10 @@ func (d *DB) applyMigrationForMinorVersion(ctx context.Context, minorVersion str
 
 	// Upsert the newest version to migration_history.
 	version := minorVersion + ".0"
-	if _, err = d.UpsertMigrationHistory(ctx, &MigrationHistoryUpsert{Version: version}); err != nil {
+	if _, err = d.UpsertMigrationHistory(ctx, &store.UpsertMigrationHistory{Version: version}); err != nil {
 		return errors.Wrapf(err, "failed to upsert migration history with version: %s", version)
 	}
 
-	return nil
-}
-
-//go:embed seed
-var seedFS embed.FS
-
-func (d *DB) seed(ctx context.Context) error {
-	filenames, err := fs.Glob(seedFS, "seed/*.sql")
-	if err != nil {
-		return errors.Wrap(err, "failed to read seed files")
-	}
-
-	sort.Strings(filenames)
-	// Loop over all seed files and execute them in order.
-	for _, filename := range filenames {
-		buf, err := seedFS.ReadFile(filename)
-		if err != nil {
-			return errors.Wrapf(err, "failed to read seed file, filename=%s", filename)
-		}
-
-		for _, stmt := range strings.Split(string(buf), ";") {
-			if strings.TrimSpace(stmt) == "" {
-				continue
-			}
-			if _, err := d.db.ExecContext(ctx, stmt); err != nil {
-				return errors.Wrapf(err, "seed error: %s", stmt)
-			}
-		}
-	}
 	return nil
 }
 

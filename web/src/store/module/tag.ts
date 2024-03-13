@@ -13,7 +13,7 @@ export const useTagStore = () => {
 
   const fetchTags = async () => {
     const { tags } = await tagServiceClient.listTags({
-      creatorId: currentUser.id,
+      user: currentUser.name,
     });
     store.dispatch(setTags(tags.map((tag) => tag.name)));
   };
@@ -25,11 +25,22 @@ export const useTagStore = () => {
     store.dispatch(upsertTagAction(tagName));
   };
 
+  const batchUpsertTag = async (tagNames: string[]) => {
+    await tagServiceClient.batchUpsertTag({
+      requests: tagNames.map((name) => ({
+        name,
+      })),
+    });
+    for (const tagName of tagNames) {
+      store.dispatch(upsertTagAction(tagName));
+    }
+  };
+
   const deleteTag = async (tagName: string) => {
     await tagServiceClient.deleteTag({
       tag: {
         name: tagName,
-        creatorId: currentUser.id,
+        creator: currentUser.name,
       },
     });
     store.dispatch(deleteTagAction(tagName));
@@ -40,6 +51,7 @@ export const useTagStore = () => {
     getState,
     fetchTags,
     upsertTag,
+    batchUpsertTag,
     deleteTag,
   };
 };

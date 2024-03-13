@@ -1,18 +1,19 @@
 import { Option, Select } from "@mui/joy";
-import { useState } from "react";
-import BetaBadge from "@/components/BetaBadge";
+import { LucideIcon } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import MobileHeader from "@/components/MobileHeader";
 import MemberSection from "@/components/Settings/MemberSection";
 import MyAccountSection from "@/components/Settings/MyAccountSection";
 import PreferencesSection from "@/components/Settings/PreferencesSection";
 import SSOSection from "@/components/Settings/SSOSection";
+import SectionMenuItem from "@/components/Settings/SectionMenuItem";
 import StorageSection from "@/components/Settings/StorageSection";
 import SystemSection from "@/components/Settings/SystemSection";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { useGlobalStore } from "@/store/module";
 import { User_Role } from "@/types/proto/api/v2/user_service";
 import { useTranslate } from "@/utils/i18n";
-import "@/less/setting.less";
 
 type SettingSection = "my-account" | "preference" | "member" | "system" | "storage" | "sso";
 
@@ -20,105 +21,102 @@ interface State {
   selectedSection: SettingSection;
 }
 
+const BASIC_SECTIONS: SettingSection[] = ["my-account", "preference"];
+const ADMIN_SECTIONS: SettingSection[] = ["member", "system", "storage", "sso"];
+
+const SECTION_ICON_MAP: Record<SettingSection, LucideIcon> = {
+  "my-account": Icon.User,
+  preference: Icon.Cog,
+  member: Icon.Users,
+  system: Icon.Settings2,
+  storage: Icon.Database,
+  sso: Icon.Key,
+};
+
 const Setting = () => {
   const t = useTranslate();
   const user = useCurrentUser();
+  const globalStore = useGlobalStore();
   const [state, setState] = useState<State>({
     selectedSection: "my-account",
   });
+
   const isHost = user.role === User_Role.HOST;
 
-  const handleSectionSelectorItemClick = (settingSection: SettingSection) => {
+  const settingsSectionList = useMemo(() => {
+    let settingList = [...BASIC_SECTIONS];
+    if (isHost) {
+      settingList = settingList.concat(ADMIN_SECTIONS);
+    }
+    return settingList;
+  }, [isHost]);
+
+  const handleSectionSelectorItemClick = useCallback((settingSection: SettingSection) => {
     setState({
       selectedSection: settingSection,
     });
-  };
-
-  const getSettingSectionList = () => {
-    let settingList: SettingSection[] = ["my-account", "preference"];
-    if (isHost) {
-      settingList = settingList.concat(["member", "system", "storage", "sso"]);
-    }
-    return settingList;
-  };
+  }, []);
 
   return (
-    <section className="@container w-full max-w-3xl min-h-full flex flex-col justify-start items-start px-4 sm:px-2 sm:pt-4 pb-8 bg-zinc-100 dark:bg-zinc-800">
-      <MobileHeader showSearch={false} />
-      <div className="setting-page-wrapper">
-        <div className="section-selector-container">
-          <span className="section-title">{t("common.basic")}</span>
-          <div className="section-items-container">
-            <span
-              onClick={() => handleSectionSelectorItemClick("my-account")}
-              className={`section-item ${state.selectedSection === "my-account" ? "selected" : ""}`}
-            >
-              <Icon.User className="w-4 h-auto mr-2 opacity-80" /> {t("setting.my-account")}
-            </span>
-            <span
-              onClick={() => handleSectionSelectorItemClick("preference")}
-              className={`section-item ${state.selectedSection === "preference" ? "selected" : ""}`}
-            >
-              <Icon.Cog className="w-4 h-auto mr-2 opacity-80" /> {t("setting.preference")}
-            </span>
+    <section className="@container w-full max-w-5xl min-h-full flex flex-col justify-start items-start sm:pt-3 md:pt-6 pb-8">
+      <MobileHeader />
+      <div className="w-full px-4 sm:px-6">
+        <div className="w-full shadow flex flex-row justify-start items-start px-4 py-3 rounded-xl bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-400">
+          <div className="hidden sm:flex flex-col justify-start items-start w-40 h-auto shrink-0 py-2">
+            <span className="text-sm mt-0.5 pl-3 font-mono select-none text-gray-400 dark:text-gray-500">{t("common.basic")}</span>
+            <div className="w-full flex flex-col justify-start items-start mt-1">
+              {BASIC_SECTIONS.map((item) => (
+                <SectionMenuItem
+                  key={item}
+                  text={t(`setting.${item}`)}
+                  icon={SECTION_ICON_MAP[item]}
+                  isSelected={state.selectedSection === item}
+                  onClick={() => handleSectionSelectorItemClick(item)}
+                />
+              ))}
+            </div>
+            {isHost ? (
+              <>
+                <span className="text-sm mt-4 pl-3 font-mono select-none text-gray-400 dark:text-gray-500">{t("common.admin")}</span>
+                <div className="w-full flex flex-col justify-start items-start mt-1">
+                  {ADMIN_SECTIONS.map((item) => (
+                    <SectionMenuItem
+                      key={item}
+                      text={t(`setting.${item}`)}
+                      icon={SECTION_ICON_MAP[item]}
+                      isSelected={state.selectedSection === item}
+                      onClick={() => handleSectionSelectorItemClick(item)}
+                    />
+                  ))}
+                  <span className="px-3 mt-2 opacity-70 text-sm">Version: v{globalStore.state.systemStatus.profile.version}</span>
+                </div>
+              </>
+            ) : null}
           </div>
-          {isHost ? (
-            <>
-              <span className="section-title">{t("common.admin")}</span>
-              <div className="section-items-container">
-                <span
-                  onClick={() => handleSectionSelectorItemClick("member")}
-                  className={`section-item ${state.selectedSection === "member" ? "selected" : ""}`}
-                >
-                  <Icon.Users className="w-4 h-auto mr-2 opacity-80" /> {t("setting.member")}
-                </span>
-                <span
-                  onClick={() => handleSectionSelectorItemClick("system")}
-                  className={`section-item ${state.selectedSection === "system" ? "selected" : ""}`}
-                >
-                  <Icon.Settings2 className="w-4 h-auto mr-2 opacity-80" /> {t("setting.system")}
-                </span>
-                <span
-                  onClick={() => handleSectionSelectorItemClick("storage")}
-                  className={`section-item ${state.selectedSection === "storage" ? "selected" : ""}`}
-                >
-                  <Icon.Database className="w-4 h-auto mr-2 opacity-80" /> {t("setting.storage")} <BetaBadge />
-                </span>
-                <span
-                  onClick={() => handleSectionSelectorItemClick("sso")}
-                  className={`section-item ${state.selectedSection === "sso" ? "selected" : ""}`}
-                >
-                  <Icon.Key className="w-4 h-auto mr-2 opacity-80" /> {t("setting.sso")} <BetaBadge />
-                </span>
-              </div>
-            </>
-          ) : null}
-        </div>
-        <div className="section-content-container sm:max-w-[calc(100%-12rem)]">
-          <Select
-            className="block mb-2 sm:!hidden"
-            value={state.selectedSection}
-            onChange={(_, value) => handleSectionSelectorItemClick(value as SettingSection)}
-          >
-            {getSettingSectionList().map((settingSection) => (
-              <Option key={settingSection} value={settingSection}>
-                {t(`setting.${settingSection}`)}
-              </Option>
-            ))}
-          </Select>
-          {state.selectedSection === "my-account" ? (
-            <MyAccountSection />
-          ) : state.selectedSection === "preference" ? (
-            <PreferencesSection />
-          ) : state.selectedSection === "member" ? (
-            <MemberSection />
-          ) : state.selectedSection === "system" ? (
-            <SystemSection />
-          ) : state.selectedSection === "storage" ? (
-            <StorageSection />
-          ) : state.selectedSection === "sso" ? (
-            <SSOSection />
-          ) : null}
+          <div className="w-full grow sm:pl-4 overflow-x-auto">
+            <div className="w-auto inline-block my-2 sm:hidden">
+              <Select value={state.selectedSection} onChange={(_, value) => handleSectionSelectorItemClick(value as SettingSection)}>
+                {settingsSectionList.map((settingSection) => (
+                  <Option key={settingSection} value={settingSection}>
+                    {t(`setting.${settingSection}`)}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            {state.selectedSection === "my-account" ? (
+              <MyAccountSection />
+            ) : state.selectedSection === "preference" ? (
+              <PreferencesSection />
+            ) : state.selectedSection === "member" ? (
+              <MemberSection />
+            ) : state.selectedSection === "system" ? (
+              <SystemSection />
+            ) : state.selectedSection === "storage" ? (
+              <StorageSection />
+            ) : state.selectedSection === "sso" ? (
+              <SSOSection />
+            ) : null}
+          </div>
         </div>
       </div>
     </section>

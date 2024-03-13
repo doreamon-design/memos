@@ -17,7 +17,6 @@
     "beta": "تجريبي",
     "cancel": "ألغِ",
     "change": "تغيير",
-    "changed": "تم التعديل",
     "clear": "مسح",
     "close": "اغلق",
     "confirm": "تأكيد",
@@ -26,11 +25,8 @@
     "delete": "حذف",
     "edit": "تعديل",
     "email": "الايميل",
-    "expand": "توسيع",
     "explore": "استكشف",
     "filter": "تنقيح",
-    "filter-period": "{{from}} إلى {{to}}",
-    "fold": "تم التغيير",
     "home": "الصفحة الرئيسية",
     "image": "صورة",
     "language": "اللغة",
@@ -65,23 +61,15 @@
     "update": "تحديث",
     "upload": "رفع",
     "username": "اسم المستخدم",
-    "vacuum": "كنس",
     "version": "الإصدار",
     "visibility": "الرؤية",
     "yourself": "نفسك"
   },
-  "daily-review": {
-    "no-memos": "عفوًا، لا يوجد شيء.",
-    "title": "المراجعة اليومية"
-  },
   "editor": {
     "cancel-edit": "إلغاء التعديل",
-    "cant-empty": "المحتوى لا يمكن أن يكون فارغ",
     "editing": "تعديل...",
     "local": "محلي",
-    "only-image-supported": "فقط ملفات الصور مدعومة",
     "placeholder": "أية أفكار...",
-    "resources": "المصادر",
     "save": "حفظ"
   },
   "memo": {
@@ -163,14 +151,12 @@
     "preference": "التفضيلات",
     "preference-section": {
       "default-memo-sort-option": "وقت عرض المذكرة",
-      "enable-double-click": "الضغط مرتين للتعديل",
-      "mobile-editor-style": "تصميم محرر الهاتف",
       "theme": "السمة"
     },
     "storage": "المساحة التخزينية",
     "system": "النظام"
   },
-  "tag-list": {
+  "tag": {
     "all-tags": "جميع العلامات",
     "create-tag": "انشاء علامة",
     "hide": "اخفاء",
