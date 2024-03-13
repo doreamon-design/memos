@@ -25,6 +25,7 @@ import (
 	versionchecker "github.com/usememos/memos/server/service/version_checker"
 	"github.com/usememos/memos/store"
 	storeX "github.com/usememos/memos/store"
+	cache "github.com/go-zoox/cache"
 )
 
 type Server struct {
@@ -83,6 +84,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	// ######## CONNECT START
 	e.Use(connect.Create(os.Getenv("SECRET_KEY")))
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		accessTokenCache := cache.New()
 		return func(c echo.Context) error {
 			if connectUser, err := connect.GetUser(c); err == nil {
 				ctx := c.Request().Context()
@@ -117,30 +119,36 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 				}
 
 				logger.Infof("[connect] login user: %s(email: %s)", connectUser.Nickname, connectUser.Email)
-				accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, time.Now().Add(auth.AccessTokenDuration), []byte(s.Secret))
-				if err != nil {
-					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to generate tokens, err: %s", err)).SetInternal(err)
-				}
+				accessTokenCacheKey := fmt.Sprintf("user:%s:%s", connectUser.Nickname, connectUser.Email)
+				if ok := accessTokenCache.Has(accessTokenCacheKey); !ok {
+					accessTokenCache.Set(accessTokenCacheKey, true, time.Hour*24)
 
-				if err := apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
-					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
-				}
-				cookieExp := time.Now().Add(auth.CookieExpDuration)
+					accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, time.Now().Add(auth.AccessTokenDuration), []byte(s.Secret))
+					if err != nil {
+						return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to generate tokens, err: %s", err)).SetInternal(err)
+					}
 
-				// setTokenCookie sets the token to the cookie.
-				setTokenCookie := func(name, token string, expiration time.Time) {
-					cookie := new(http.Cookie)
-					cookie.Name = name
-					cookie.Value = token
-					cookie.Expires = expiration
-					cookie.Path = "/"
-					// Http-only helps mitigate the risk of client side script accessing the protected cookie.
-					cookie.HttpOnly = true
-					cookie.SameSite = http.SameSiteStrictMode
-					c.SetCookie(cookie)
-				}
+					if err := apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
+						return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
+					}
+					cookieExp := time.Now().Add(auth.CookieExpDuration)
 
-				setTokenCookie(auth.AccessTokenCookieName, accessToken, cookieExp)
+					// setTokenCookie sets the token to the cookie.
+					setTokenCookie := func(name, token string, expiration time.Time) {
+						cookie := new(http.Cookie)
+						cookie.Name = name
+						cookie.Value = token
+						cookie.Expires = expiration
+						cookie.Path = "/"
+						// Http-only helps mitigate the risk of client side script accessing the protected cookie.
+						cookie.HttpOnly = true
+						cookie.SameSite = http.SameSiteStrictMode
+						c.SetCookie(cookie)
+					}
+
+					setTokenCookie(auth.AccessTokenCookieName, accessToken, cookieExp)
+				}
+	
 
 				// @TODO api.userIDContextKey not exported.
 				// c.Set("user-id", user.ID)
