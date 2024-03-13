@@ -14,6 +14,10 @@ RUN pnpm build
 FROM golang:1.22-alpine AS backend
 WORKDIR /backend-build
 
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
 COPY . .
 
 RUN CGO_ENABLED=0 go build -o memos ./bin/memos/main.go
