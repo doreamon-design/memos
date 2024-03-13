@@ -1,4 +1,4 @@
-import { Button, Input, Radio, RadioGroup } from "@mui/joy";
+import { Button, IconButton, Input, Radio, RadioGroup } from "@mui/joy";
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { userServiceClient } from "@/grpcweb";
@@ -69,7 +69,7 @@ const CreateAccessTokenDialog: React.FC<Props> = (props: Props) => {
 
     try {
       await userServiceClient.createUserAccessToken({
-        username: currentUser.username,
+        name: currentUser.name,
         description: state.description,
         expiresAt: state.expiration ? new Date(Date.now() + state.expiration * 1000) : undefined,
       });
@@ -86,9 +86,9 @@ const CreateAccessTokenDialog: React.FC<Props> = (props: Props) => {
     <>
       <div className="dialog-header-container">
         <p className="title-text">Create access token</p>
-        <button className="btn close-btn" onClick={() => destroy()}>
-          <Icon.X />
-        </button>
+        <IconButton size="sm" onClick={() => destroy()}>
+          <Icon.X className="w-5 h-auto" />
+        </IconButton>
       </div>
       <div className="dialog-content-container !w-80">
         <div className="w-full flex flex-col justify-start items-start mb-3">
@@ -139,7 +139,7 @@ function showCreateAccessTokenDialog(onConfirm: () => void) {
     CreateAccessTokenDialog,
     {
       onConfirm,
-    }
+    },
   );
 }
 

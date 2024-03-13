@@ -24,19 +24,7 @@ func (d *DB) CreateActivity(ctx context.Context, create *store.Activity) (*store
 	placeholder := []string{"?", "?", "?", "?"}
 	args := []any{create.CreatorID, create.Type.String(), create.Level.String(), payloadString}
 
-	if create.ID != 0 {
-		fields = append(fields, "`id`")
-		placeholder = append(placeholder, "?")
-		args = append(args, create.ID)
-	}
-
-	if create.CreatedTs != 0 {
-		fields = append(fields, "`created_ts`")
-		placeholder = append(placeholder, "FROM_UNIXTIME(?)")
-		args = append(args, create.CreatedTs)
-	}
-
-	stmt := "INSERT INTO activity (" + strings.Join(fields, ", ") + ") VALUES (" + strings.Join(placeholder, ", ") + ")"
+	stmt := "INSERT INTO `activity` (" + strings.Join(fields, ", ") + ") VALUES (" + strings.Join(placeholder, ", ") + ")"
 	result, err := d.db.ExecContext(ctx, stmt, args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute statement")
@@ -63,8 +51,11 @@ func (d *DB) ListActivities(ctx context.Context, find *store.FindActivity) ([]*s
 	if find.ID != nil {
 		where, args = append(where, "`id` = ?"), append(args, *find.ID)
 	}
+	if find.Type != nil {
+		where, args = append(where, "`type` = ?"), append(args, find.Type.String())
+	}
 
-	query := "SELECT `id`, `creator_id`, `type`, `level`, `payload`, UNIX_TIMESTAMP(`created_ts`) FROM `activity` WHERE " + strings.Join(where, " AND ")
+	query := "SELECT `id`, `creator_id`, `type`, `level`, `payload`, UNIX_TIMESTAMP(`created_ts`) FROM `activity` WHERE " + strings.Join(where, " AND ") + " ORDER BY `created_ts` DESC"
 	rows, err := d.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err

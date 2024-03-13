@@ -3,13 +3,16 @@ syntax = "proto3";
 package memos.api.v2;
 
 import "google/api/annotations.proto";
+import "google/api/client.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "gen/api/v2";
 
 service ActivityService {
+  // GetActivity returns the activity with the given id.
   rpc GetActivity(GetActivityRequest) returns (GetActivityResponse) {
-    option (google.api.http) = {get: "/v2/activities"};
+    option (google.api.http) = {get: "/v2/activities/{id}"};
+    option (google.api.method_signature) = "id";
   }
 }
 
@@ -32,8 +35,13 @@ message ActivityMemoCommentPayload {
   int32 related_memo_id = 2;
 }
 
+message ActivityVersionUpdatePayload {
+  string version = 1;
+}
+
 message ActivityPayload {
   ActivityMemoCommentPayload memo_comment = 1;
+  ActivityVersionUpdatePayload version_update = 2;
 }
 
 message GetActivityRequest {

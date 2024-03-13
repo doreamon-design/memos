@@ -11,20 +11,18 @@ import (
 	"github.com/go-zoox/logger"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
-	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"github.com/go-zoox/connect-middleware-for-echo"
 	"github.com/go-zoox/random"
-	"github.com/usememos/memos/api/auth"
-	apiv1 "github.com/usememos/memos/api/v1"
-	apiv2 "github.com/usememos/memos/api/v2"
 	"github.com/usememos/memos/plugin/telegram"
 	"github.com/usememos/memos/server/integration"
 	"github.com/usememos/memos/server/profile"
-	"github.com/usememos/memos/server/service/backup"
-	"github.com/usememos/memos/server/service/metric"
+	"github.com/usememos/memos/server/route/api/auth"
+	apiv1 "github.com/usememos/memos/server/route/api/v1"
+	apiv2 "github.com/usememos/memos/server/route/api/v2"
+	"github.com/usememos/memos/server/route/frontend"
+	versionchecker "github.com/usememos/memos/server/service/version_checker"
 	"github.com/usememos/memos/store"
 	storeX "github.com/usememos/memos/store"
 )
@@ -37,13 +35,8 @@ type Server struct {
 	Profile *profile.Profile
 	Store   *store.Store
 
-	// API services.
-	apiV1Service *apiv1.APIV1Service
-	apiV2Service *apiv2.APIV2Service
-
 	// Asynchronous runners.
-	backupRunner *backup.BackupRunner
-	telegramBot  *telegram.Bot
+	telegramBot *telegram.Bot
 }
 
 func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store) (*Server, error) {
@@ -58,28 +51,34 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 		Profile: profile,
 
 		// Asynchronous runners.
-		backupRunner: backup.NewBackupRunner(store),
-		telegramBot:  telegram.NewBotWithHandler(integration.NewTelegramHandler(store)),
+		telegramBot: telegram.NewBotWithHandler(integration.NewTelegramHandler(store)),
 	}
 
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `{"time":"${time_rfc3339}","latency":"${latency_human}",` +
-			`"method":"${method}","uri":"${uri}",` +
-			`"status":${status},"error":"${error}"}` + "\n",
-	}))
+	// Register CORS middleware.
+	e.Use(CORSMiddleware())
 
-	e.Use(middleware.Gzip())
+	serverID, err := s.getSystemServerID(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to retrieve system server ID")
+	}
+	s.ID = serverID
 
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		Skipper:      grpcRequestSkipper,
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
-	}))
+	secret := "usememos"
+	if profile.Mode == "prod" {
+		secret, err = s.getSystemSecretSessionName(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to retrieve system secret session name")
+		}
+	}
+	
+	s.Secret = secret
+	apiV1Service := apiv1.NewAPIV1Service(s.Secret, profile, store, s.telegramBot)
+	apiV2Service := apiv2.NewAPIV2Service(s.Secret, profile, store, s.Profile.Port+1)
 
-	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Skipper: grpcRequestSkipper,
-		Timeout: 30 * time.Second,
-	}))
+	// Register healthz endpoint.
+	e.GET("/healthz", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Service ready.")
+	})
 
 	// ######## CONNECT START
 	e.Use(connect.Create(os.Getenv("SECRET_KEY")))
@@ -123,7 +122,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to generate tokens, err: %s", err)).SetInternal(err)
 				}
 
-				if err := s.apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
+				if err := apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
 					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
 				}
 				cookieExp := time.Now().Add(auth.CookieExpDuration)
@@ -152,38 +151,18 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	})
 	// ######## CONNECT END
 
-	serverID, err := s.getSystemServerID(ctx)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve system server ID")
-	}
-	s.ID = serverID
-
-	// Serve frontend.
-	embedFrontend(e)
-
-	// Serve swagger in dev/demo mode.
-	if profile.Mode == "dev" || profile.Mode == "demo" {
-		e.GET("/api/*", echoSwagger.WrapHandler)
+	// Only serve frontend when it's enabled.
+	if profile.Frontend {
+		frontendService := frontend.NewFrontendService(profile, store)
+		frontendService.Serve(ctx, e)
 	}
 
-	secret := "usememos"
-	if profile.Mode == "prod" {
-		secret, err = s.getSystemSecretSessionName(ctx)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to retrieve system secret session name")
-		}
-	}
-	s.Secret = secret
-
+	// Register API v1 endpoints.
 	rootGroup := e.Group("")
-	apiV1Service := apiv1.NewAPIV1Service(s.Secret, profile, store, s.telegramBot)
 	apiV1Service.Register(rootGroup)
 
-	s.apiV1Service = apiV1Service
-
-	s.apiV2Service = apiv2.NewAPIV2Service(s.Secret, profile, store, s.Profile.Port+1)
 	// Register gRPC gateway as api v2.
-	if err := s.apiV2Service.RegisterGateway(ctx, e); err != nil {
+	if err := apiV2Service.RegisterGateway(ctx, e); err != nil {
 		return nil, errors.Wrap(err, "failed to register gRPC gateway")
 	}
 
@@ -191,10 +170,8 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 }
 
 func (s *Server) Start(ctx context.Context) error {
+	go versionchecker.NewVersionChecker(s.Store, s.Profile).Start(ctx)
 	go s.telegramBot.Start(ctx)
-	go s.backupRunner.Run(ctx)
-
-	metric.Enqueue("server start")
 	return s.e.Start(fmt.Sprintf("%s:%d", s.Profile.Addr, s.Profile.Port))
 }
 
@@ -220,14 +197,14 @@ func (s *Server) GetEcho() *echo.Echo {
 }
 
 func (s *Server) getSystemServerID(ctx context.Context) (string, error) {
-	serverIDSetting, err := s.Store.GetSystemSetting(ctx, &store.FindSystemSetting{
+	serverIDSetting, err := s.Store.GetWorkspaceSetting(ctx, &store.FindWorkspaceSetting{
 		Name: apiv1.SystemSettingServerIDName.String(),
 	})
 	if err != nil {
 		return "", err
 	}
 	if serverIDSetting == nil || serverIDSetting.Value == "" {
-		serverIDSetting, err = s.Store.UpsertSystemSetting(ctx, &store.SystemSetting{
+		serverIDSetting, err = s.Store.UpsertWorkspaceSetting(ctx, &store.WorkspaceSetting{
 			Name:  apiv1.SystemSettingServerIDName.String(),
 			Value: uuid.NewString(),
 		})
@@ -239,14 +216,14 @@ func (s *Server) getSystemServerID(ctx context.Context) (string, error) {
 }
 
 func (s *Server) getSystemSecretSessionName(ctx context.Context) (string, error) {
-	secretSessionNameValue, err := s.Store.GetSystemSetting(ctx, &store.FindSystemSetting{
+	secretSessionNameValue, err := s.Store.GetWorkspaceSetting(ctx, &store.FindWorkspaceSetting{
 		Name: apiv1.SystemSettingSecretSessionName.String(),
 	})
 	if err != nil {
 		return "", err
 	}
 	if secretSessionNameValue == nil || secretSessionNameValue.Value == "" {
-		secretSessionNameValue, err = s.Store.UpsertSystemSetting(ctx, &store.SystemSetting{
+		secretSessionNameValue, err = s.Store.UpsertWorkspaceSetting(ctx, &store.WorkspaceSetting{
 			Name:  apiv1.SystemSettingSecretSessionName.String(),
 			Value: uuid.NewString(),
 		})
@@ -259,4 +236,29 @@ func (s *Server) getSystemSecretSessionName(ctx context.Context) (string, error)
 
 func grpcRequestSkipper(c echo.Context) bool {
 	return strings.HasPrefix(c.Request().URL.Path, "/memos.api.v2.")
+}
+
+func CORSMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			if grpcRequestSkipper(c) {
+				return next(c)
+			}
+
+			r := c.Request()
+			w := c.Response().Writer
+
+			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+			// If it's preflight request, return immediately.
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return nil
+			}
+			return next(c)
+		}
+	}
 }

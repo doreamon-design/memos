@@ -3,8 +3,7 @@
     "about-memos": "Sobre o memos",
     "memos-description": "memos é um aplicativo de bloco de notas baseado na web que você pode usar para escrever, organizar e compartilhar anotações.",
     "no-server-description": "Nenhuma descrição configurada para este servidor.",
-    "other-projects": "Outros projetos",
-    "powered-by": "Provido por"
+    "other-projects": "Outros projetos"
   },
   "amount-text": {
     "memo_many": "MEMOS",
@@ -29,7 +28,6 @@
     "beta": "Beta",
     "cancel": "Cancelar",
     "change": "Alterar",
-    "changed": "alterado",
     "clear": "Limpar",
     "close": "Fechar",
     "confirm": "Confirmar",
@@ -38,13 +36,12 @@
     "delete": "Deletar",
     "edit": "Editar",
     "email": "Email",
-    "expand": "Expandir",
     "explore": "Explorar",
+    "file": "Arquivo",
     "filter": "Filtro",
-    "filter-period": "{{from}} até {{to}}",
-    "fold": "Recolher",
     "home": "Início",
     "image": "Imagem",
+    "inbox": "Caixa de Entrada",
     "language": "Idioma",
     "learn-more": "Saiba mais",
     "link": "Link",
@@ -63,12 +60,14 @@
     "reset": "Redefinir",
     "resources": "Recursos",
     "restore": "Restaurar",
+    "role": "Cargo",
     "save": "Salvar",
+    "search": "Pesquisar",
     "select": "Selecionar",
     "settings": "Configurações",
     "share": "Compartilhar",
     "sign-in": "Entrar",
-    "sign-in-with": "Entrar usando {{provider}}",
+    "sign-in-with": "Entrar com {{provider}}",
     "sign-out": "Sair",
     "sign-up": "Registrar",
     "tags": "Tags",
@@ -78,14 +77,9 @@
     "update": "Atualizar",
     "upload": "Carregar",
     "username": "Nome de usuário",
-    "vacuum": "Compactar (vacuum)",
     "version": "Versão",
     "visibility": "Visibilidade",
     "yourself": "Você mesmo"
-  },
-  "daily-review": {
-    "no-memos": "Não há memos.",
-    "title": "Resumo Diário"
   },
   "days": {
     "fri": "Sex",
@@ -98,12 +92,9 @@
   },
   "editor": {
     "cancel-edit": "Cancelar edição",
-    "cant-empty": "O conteúdo não pode estar vazio",
     "editing": "Editando…",
     "local": "Local",
-    "only-image-supported": "Apenas imagens são suportadas.",
     "placeholder": "Alguma ideia…",
-    "resources": "Recursos",
     "save": "Salvar"
   },
   "embed-memo": {
@@ -112,13 +103,9 @@
     "text": "Copie o código abaixo para incorporar este memo em seu site.",
     "title": "Incorporar memo"
   },
-  "heatmap": {
-    "day": "dia",
-    "days": "dias",
-    "memo-in": "memo em {{period}}",
-    "memo-on": "{{amount}} memo em {{date}}",
-    "memos-in": "memos em {{period}}",
-    "memos-on": "{{amount}} memos em {{date}}"
+  "inbox": {
+    "memo-comment": "{{user}} tem um comentário sobre o seu {{memo}}.",
+    "version-update": "A nova versão {{version}} já está disponível!"
   },
   "memo": {
     "archived-at": "Arquivado em",
@@ -128,13 +115,14 @@
       "self": "Comentários"
     },
     "copy-link": "Copiar link",
-    "delete-confirm": "Tem certeza de que deseja deletar este memo?\n\nESTA AÇÃO É IRREVERSÍVEL❗",
+    "delete-confirm": "Tem certeza de que deseja deletar este memo?\n\nESTA AÇÃO É IRREVERSÍVEL",
     "delete-memo": "Deletar memo",
     "embed": "Incorporar",
-    "fetch-more": "Clique para carregar mais dados",
+    "fetch-more": "Clique para carregar mais",
     "fetching-data": "Obtendo dados…",
     "no-archived-memos": "Nenhum memo arquivado.",
     "search-placeholder": "Pesquisar memos",
+    "show-more": "Mostrar mais",
     "view-detail": "Ver detalhes",
     "visibility": {
       "disabled": "Memos públicos estão desabilitados",
@@ -149,7 +137,6 @@
     "click-to-save-the-image": "Clique para salvar a imagem",
     "copied": "Copiado",
     "count-selected-resources": "Total selecionado",
-    "file-exceeds-upload-limit-of": "O arquivo {{file}} excede o limite de upload de {{size}} MiB",
     "fill-all": "Por favor, preencha todos os campos.",
     "fill-form": "Por favor, preencha o formulário",
     "fill-server-name": "Por favor, preencha o nome do servidor",
@@ -164,9 +151,7 @@
     "memos-ready": "todos os memos estão prontos 🎉",
     "new-password-not-match": "As novas senhas não coincidem.",
     "no-data": "Nenhum dado encontrado.",
-    "page-not-found": "404 - Página não encontrada 😥",
     "password-changed": "Senha alterada",
-    "password-login-disabled": "Não é possível remover o último provedor de identidade disponível quando o login com senha está desabilitado",
     "password-not-match": "As senhas não coincidem.",
     "private-only": "Este memo é privado.",
     "resource-filename-updated": "Nome do arquivo do recurso atualizado.",
@@ -176,13 +161,13 @@
     "succeed-copy-code": "Código copiado com êxito.",
     "succeed-copy-content": "Conteúdo copiado com êxito.",
     "succeed-copy-link": "Link copiado com êxito.",
+    "succeed-copy-link-not-public": "Conteúdo copiado com êxito. Este memo não pode ser acessado sem fazer login.",
     "succeed-copy-resource-link": "Link do recurso copiado com êxito.",
     "succeed-update-additional-script": "Script adicional atualizado com êxito.",
     "succeed-update-additional-style": "Folha de estilos adicional atualizada com êxito.",
     "succeed-update-customized-profile": "Perfil personalizado com êxito.",
     "succeed-vacuum-database": "Banco de dados compactado com êxito.",
     "update-succeed": "Atualizado com êxito",
-    "updating-setting-failed": "Falha ao atualizar configuração",
     "user-not-found": "Usuário não encontrado"
   },
   "resource": {
@@ -214,12 +199,12 @@
     "no-resources": "Nenhum recurso.",
     "no-unused-resources": "Nenhum recurso não utilizado",
     "reset-link": "Redefinir link",
-    "reset-link-prompt": "Tem certeza de que deseja redefinir o link?\nIsso quebrará todos os vínculos atuais.\n\nESTA AÇÃO É IRREVERSÍVEL❗",
+    "reset-link-prompt": "Tem certeza de que deseja redefinir o link?\nIsso quebrará todos os vínculos atuais.\n\nESTA AÇÃO É IRREVERSÍVEL",
     "reset-resource-link": "Redefinir link do recurso",
     "search-bar-placeholder": "Pesquisar recurso",
     "upload-successfully": "Carregado com êxito",
-    "warning-text": "Tem certeza de que deseja deletar este recurso?\n\nESTA AÇÃO É IRREVERSÍVEL❗",
-    "warning-text-unused": "Tem certeza de que deseja deletar este recurso não utilizado?\n\nESTA AÇÃO É IRREVERSÍVEL❗"
+    "warning-text": "Tem certeza de que deseja deletar este recurso?\n\nESTA AÇÃO É IRREVERSÍVEL",
+    "warning-text-unused": "Tem certeza de que deseja deletar este recurso não utilizado?\n\nESTA AÇÃO É IRREVERSÍVEL"
   },
   "router": {
     "back-to-top": "Voltar ao Topo",
@@ -229,6 +214,7 @@
     "account-section": {
       "change-password": "Alterar senha",
       "email-note": "Opcional",
+      "export-memos": "Exportar Memos",
       "nickname-note": "Exibido no banner",
       "openapi-reset": "Redefinir chave OpenAPI",
       "openapi-sample-post": "Olá #memos em {{url}}",
@@ -250,32 +236,23 @@
       "archive-warning": "❗ Tem certeza de que deseja arquivar {{username}}?",
       "create-a-member": "Criar um membro",
       "delete-member": "Deletar membro",
-      "delete-warning": "❗ Tem certeza de que deseja deletar {{username}}?\n\nESTA AÇÃO É IRREVERSÍVEL❗"
+      "delete-warning": "Tem certeza de que deseja deletar {{username}}?\n\nESTA AÇÃO É IRREVERSÍVEL"
     },
     "my-account": "Minha conta",
     "preference": "Preferências",
     "preference-section": {
-      "auto-collapse": "Recolher automaticamente",
-      "created_ts": "Hora de criação",
-      "daily-review-time-offset": "Compensação de tempo do Resumo Diário",
       "default-memo-sort-option": "Exibição de tempo do memo",
       "default-memo-visibility": "Visibilidade padrão do memo",
-      "default-resource-visibility": "Visibilidade padrão do recurso",
-      "editor-font-style": "Estilo de fonte do editor",
-      "enable-double-click": "Habilitar duplo clique para editar",
-      "enable-folding-memo": "Habilitar recolher memo",
-      "mobile-editor-style": "Estilo do editor para dispositivos móveis",
       "telegram-user-id": "ID de usuário do Telegram",
       "telegram-user-id-placeholder": "Envie quaisquer palavras para seu Bot do Telegram como um memo",
-      "theme": "Tema",
-      "updated_ts": "Hora de atualização"
+      "theme": "Tema"
     },
     "sso": "SSO",
     "sso-section": {
       "authorization-endpoint": "Endpoint de autenticação",
       "client-id": "ID do cliente",
       "client-secret": "Segredo do cliente",
-      "confirm-delete": "Tem certeza de que deseja excluir a configuração SSO \"{{name}}\"?\n\nESTA AÇÃO É IRREVERSÍVEL❗",
+      "confirm-delete": "Tem certeza de que deseja excluir a configuração SSO \"{{name}}\"?\n\nESTA AÇÃO É IRREVERSÍVEL",
       "create-sso": "Criar SSO",
       "custom": "Personalizado",
       "delete-sso": "Confirmar exclusão",
@@ -308,12 +285,13 @@
       "path": "Caminho do armazenamento",
       "path-description": "Você pode usar as mesmas variáveis dinâmicas do armazenamento local, como {filename}",
       "path-placeholder": "caminho",
+      "presign-placeholder": "URL pré-assinado, opcional",
       "region": "Região",
       "region-placeholder": "Nome da região",
       "s3-compatible-url": "URL compatível com S3",
       "secretkey": "Chave secreta",
       "secretkey-placeholder": "Chave secreta / Chave de acesso",
-      "storage-services-list": "Lista de serviços de armazenamento",
+      "storage-services": "Lista de serviços de armazenamento",
       "type-database": "Banco de dados",
       "type-local": "Sistema de arquivos local",
       "update-a-service": "Atualizar um serviço",
@@ -324,7 +302,7 @@
       "url-prefix-placeholder": "Prefixo personalizado da URL, opcional",
       "url-suffix": "Sufixo da URL",
       "url-suffix-placeholder": "Sufixo personalizado da URL, opcional",
-      "warning-text": "Tem certeza de que deseja deletar o serviço de armazenamento \"{{name}}\"?\n\nESTA AÇÃO É IRREVERSÍVEL❗"
+      "warning-text": "Tem certeza de que deseja deletar o serviço de armazenamento \"{{name}}\"?\n\nESTA AÇÃO É IRREVERSÍVEL"
     },
     "system": "Sistema",
     "system-section": {
@@ -333,11 +311,8 @@
       "additional-style": "Estilo adicional",
       "additional-style-placeholder": "Código CSS adicional",
       "allow-user-signup": "Permitir registro de usuário",
-      "auto-backup-interval": "Intervalo para backup automático (segundos)",
-      "auto-backup-interval-hint": "Defina como 0 para desabilitar o backup automático. É necessário reiniciar após alterar esse valor.",
       "customize-server": {
         "appearance": "Aparência do servidor",
-        "default": "O padrão é memos",
         "description": "Descrição",
         "icon-url": "URL do ícone",
         "locale": "Localização do servidor",
@@ -351,16 +326,16 @@
       "display-with-updated-time": "Exibir hora de atualização nos memos",
       "enable-password-login": "Habilitar login com senha",
       "enable-password-login-warning": "Isso permitirá o login com senha para todos os usuários. Continue apenas se desejar que os usuários possam fazer login usando SSO e senha local❗",
-      "ignore-version-upgrade": "Ignorar atualização de versão",
       "max-upload-size": "Tamanho máximo de upload (MiB)",
       "max-upload-size-hint": "O valor recomendado é 32 MiB.",
       "server-name": "Nome do servidor",
       "telegram-bot-token": "Token de Bot do Telegram",
       "telegram-bot-token-description": "Token de Bot do Telegram ou Proxy de API, tipo `http…/bot<token>`",
-      "telegram-bot-token-placeholder": "Seu token de Bot do Telegram"
+      "telegram-bot-token-placeholder": "Seu token de Bot do Telegram",
+      "vacuum-hint": "Limpa dados não utilizados."
     }
   },
-  "tag-list": {
+  "tag": {
     "all-tags": "Todas as Tags",
     "create-tag": "Criar Tag",
     "hide": "Ocultar",
@@ -370,5 +345,8 @@
     "tag-name": "NOME_DA_TAG",
     "tag-suggestions": "Sugestões de Tag",
     "tip-text": "Insira `#tag` para criar uma nova"
+  },
+  "timeline": {
+    "title": "Linha do tempo"
   }
 }

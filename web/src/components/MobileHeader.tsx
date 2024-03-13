@@ -1,35 +1,41 @@
+import classNames from "classnames";
 import { useState } from "react";
-import { useLayoutStore } from "@/store/module";
-import Icon from "./Icon";
+import useWindowScroll from "react-use/lib/useWindowScroll";
+import useResponsiveWidth from "@/hooks/useResponsiveWidth";
+import { useGlobalStore } from "@/store/module";
+import NavigationDrawer from "./NavigationDrawer";
 
 interface Props {
-  showSearch?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 const MobileHeader = (props: Props) => {
-  const { showSearch = true } = props;
-  const layoutStore = useLayoutStore();
-  const [titleText] = useState("MEMOS");
+  const globalStore = useGlobalStore();
+  const { systemStatus } = globalStore.state;
+  const { className, children } = props;
+  const { sm } = useResponsiveWidth();
+  const [titleText] = useState("Memos");
+  const { y: offsetTop } = useWindowScroll();
 
   return (
-    <div className="sticky top-0 pt-4 sm:pt-1 pb-1 mb-1 backdrop-blur bg-zinc-100 dark:bg-zinc-800 bg-opacity-70 flex @lg:hidden flex-row justify-between items-center w-full h-auto flex-nowrap shrink-0 z-2">
+    <div
+      className={classNames(
+        "sticky top-0 pt-3 pb-2 sm:pt-2 px-4 sm:px-6 sm:mb-1 bg-zinc-100 dark:bg-zinc-900 bg-opacity-80 backdrop-blur-lg flex md:hidden flex-row justify-between items-center w-full h-auto flex-nowrap shrink-0 z-1",
+        offsetTop > 0 && "shadow-md",
+        className,
+      )}
+    >
       <div className="flex flex-row justify-start items-center mr-2 shrink-0 overflow-hidden">
-        <div
-          className="flex sm:hidden flex-row justify-center items-center w-6 h-6 mr-1 shrink-0 bg-transparent"
-          onClick={() => layoutStore.setHeaderStatus(true)}
-        >
-          <Icon.Menu className="w-5 h-auto dark:text-gray-200" />
-        </div>
+        {!sm && <NavigationDrawer />}
         <span
-          className="font-bold text-lg leading-10 mr-1 text-ellipsis shrink-0 cursor-pointer overflow-hidden text-gray-700 dark:text-gray-200"
-          onClick={() => location.reload()}
+          className="font-bold text-lg leading-10 mr-1 text-ellipsis shrink-0 cursor-pointer overflow-hidden text-gray-700 dark:text-gray-300"
+          onDoubleClick={() => location.reload()}
         >
-          {titleText}
+          {systemStatus.customizedProfile.name || titleText}
         </span>
       </div>
-      <div className={`${showSearch ? "flex" : "hidden"} flex-row justify-end items-center pr-1`}>
-        <Icon.Search className="w-5 h-auto dark:text-gray-200" onClick={() => layoutStore.setHomeSidebarStatus(true)} />
-      </div>
+      <div className="flex flex-row justify-end items-center">{children}</div>
     </div>
   );
 };
