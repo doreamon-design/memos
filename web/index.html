@@ -17,6 +17,22 @@
         document.documentElement.classList.add("dark");
       }
     </script>
+    <script>
+        var originalFetch = window.fetch;
+        window.fetch = function (url, options) {
+          return originalFetch(url, options)
+            .then(response => {
+              // if the response is unauthorized, reload the page for re-authentication
+              if (response.status === 401) {
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              } else {
+                return response;
+              }
+            });
+        };
+    </script>
   </head>
   <body>
     <div id="root"></div>
