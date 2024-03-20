@@ -19,14 +19,18 @@
     </script>
     <script>
         var originalFetch = window.fetch;
+        var isReloading = false;
         window.fetch = function (url, options) {
           return originalFetch(url, options)
             .then(response => {
               // if the response is unauthorized, reload the page for re-authentication
               if (response.status === 401) {
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1000);
+                if (!isReloading) {
+                  isReloading = true;
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                }
               } else {
                 return response;
               }
