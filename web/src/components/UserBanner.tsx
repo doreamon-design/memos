@@ -22,7 +22,7 @@ const UserBanner = (props: Props) => {
 
   const handleSignOut = async () => {
     await authServiceClient.signOut({});
-    window.location.href = "/auth";
+    window.location.href = "/logout";
   };
 
   return (
