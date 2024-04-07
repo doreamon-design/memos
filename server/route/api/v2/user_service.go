@@ -382,7 +382,7 @@ func (s *APIV2Service) ListUserAccessTokens(ctx context.Context, request *apiv2p
 
 	// Sort by issued time in descending order.
 	slices.SortFunc(accessTokens, func(i, j *apiv2pb.UserAccessToken) int {
-		return int(i.IssuedAt.Seconds - j.IssuedAt.Seconds)
+		return int(j.IssuedAt.Seconds - i.IssuedAt.Seconds)
 	})
 
 	// limit only the first 200 access tokens.
