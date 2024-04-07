@@ -350,11 +350,6 @@ func (s *APIV2Service) ListUserAccessTokens(ctx context.Context, request *apiv2p
 		return nil, status.Errorf(codes.Internal, "failed to list access tokens: %v", err)
 	}
 
-	// limit only the first 200 access tokens.
-	if len(userAccessTokens) > 200 {
-		userAccessTokens = userAccessTokens[:200]
-	}
-
 	accessTokens := []*apiv2pb.UserAccessToken{}
 	for _, userAccessToken := range userAccessTokens {
 		claims := &auth.ClaimsMessage{}
@@ -389,6 +384,12 @@ func (s *APIV2Service) ListUserAccessTokens(ctx context.Context, request *apiv2p
 	slices.SortFunc(accessTokens, func(i, j *apiv2pb.UserAccessToken) int {
 		return int(i.IssuedAt.Seconds - j.IssuedAt.Seconds)
 	})
+
+	// limit only the first 200 access tokens.
+	if len(userAccessTokens) > 200 {
+		userAccessTokens = userAccessTokens[:200]
+	}
+
 	response := &apiv2pb.ListUserAccessTokensResponse{
 		AccessTokens: accessTokens,
 	}
