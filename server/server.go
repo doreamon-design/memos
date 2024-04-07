@@ -83,6 +83,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 
 	// ######## CONNECT START
 	e.Use(connect.Create(os.Getenv("SECRET_KEY")))
+	accessTokenCache := cache.New()
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			if connectUser, err := connect.GetUser(c); err == nil {
