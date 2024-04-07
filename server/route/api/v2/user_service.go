@@ -350,9 +350,9 @@ func (s *APIV2Service) ListUserAccessTokens(ctx context.Context, request *apiv2p
 		return nil, status.Errorf(codes.Internal, "failed to list access tokens: %v", err)
 	}
 
-	// limit only the first 20 access tokens.
-	if len(userAccessTokens) > 20 {
-		userAccessTokens = userAccessTokens[:20]
+	// limit only the first 200 access tokens.
+	if len(userAccessTokens) > 200 {
+		userAccessTokens = userAccessTokens[:200]
 	}
 
 	accessTokens := []*apiv2pb.UserAccessToken{}
