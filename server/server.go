@@ -84,7 +84,6 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	// ######## CONNECT START
 	e.Use(connect.Create(os.Getenv("SECRET_KEY")))
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		accessTokenCache := cache.New()
 		return func(c echo.Context) error {
 			if connectUser, err := connect.GetUser(c); err == nil {
 				ctx := c.Request().Context()
@@ -121,6 +120,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 				logger.Infof("[connect] login user: %s(email: %s)", connectUser.Nickname, connectUser.Email)
 				accessTokenCacheKey := fmt.Sprintf("user:%s:%s", connectUser.Nickname, connectUser.Email)
 				if ok := accessTokenCache.Has(accessTokenCacheKey); !ok {
+					logger.Infof("[connect] login access token cache not found, generate new (cache key: %s) ...", accessTokenCacheKey)
 					accessTokenCache.Set(accessTokenCacheKey, true, time.Hour*24)
 
 					accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, time.Now().Add(auth.AccessTokenDuration), []byte(s.Secret))
@@ -147,6 +147,8 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 					}
 
 					setTokenCookie(auth.AccessTokenCookieName, accessToken, cookieExp)
+				} else {
+					logger.Infof("[connect] login access token cache found (cache key: %s), ignore", accessTokenCacheKey)
 				}
 	
 
