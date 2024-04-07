@@ -386,8 +386,8 @@ func (s *APIV2Service) ListUserAccessTokens(ctx context.Context, request *apiv2p
 	})
 
 	// limit only the first 200 access tokens.
-	if len(userAccessTokens) > 200 {
-		userAccessTokens = userAccessTokens[:200]
+	if len(accessTokens) > 200 {
+		accessTokens = accessTokens[:200]
 	}
 
 	response := &apiv2pb.ListUserAccessTokensResponse{
