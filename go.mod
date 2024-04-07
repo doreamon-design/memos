@@ -12,7 +12,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/go-zoox/cache v1.0.6
 	github.com/go-zoox/connect-middleware-for-echo v1.0.0
-	github.com/go-zoox/logger v1.4.6
+	github.com/go-zoox/logger v1.5.1
 	github.com/go-zoox/random v1.0.4
 	github.com/google/cel-go v0.18.1
 	github.com/google/uuid v1.4.0
@@ -56,9 +56,9 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-zoox/chalk v1.0.2 // indirect
 	github.com/go-zoox/connect v1.12.0 // indirect
-	github.com/go-zoox/core-utils v1.2.14 // indirect
+	github.com/go-zoox/core-utils v1.4.5 // indirect
 	github.com/go-zoox/crypto v1.1.8 // indirect
-	github.com/go-zoox/datetime v1.2.2 // indirect
+	github.com/go-zoox/datetime v1.3.1 // indirect
 	github.com/go-zoox/encoding v1.2.1 // indirect
 	github.com/go-zoox/fs v1.3.13 // indirect
 	github.com/go-zoox/jwt v1.3.0 // indirect
