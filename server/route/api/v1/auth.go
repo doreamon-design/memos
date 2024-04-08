@@ -230,7 +230,7 @@ func (s *APIV1Service) SignInSSO(c echo.Context) error {
 //	@Success	200	{boolean}	true	"Sign-out success"
 //	@Router		/api/v1/auth/signout [POST]
 func (s *APIV1Service) SignOut(c echo.Context) error {
-	accessToken := findAccessToken(c)
+	accessToken := FindAccessToken(c)
 	userID, _ := getUserIDFromAccessToken(accessToken, s.Secret)
 
 	err := removeAccessTokenAndCookies(c, s.Store, userID, accessToken)

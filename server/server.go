@@ -25,7 +25,6 @@ import (
 	versionchecker "github.com/usememos/memos/server/service/version_checker"
 	"github.com/usememos/memos/store"
 	storeX "github.com/usememos/memos/store"
-	cache "github.com/go-zoox/cache"
 )
 
 type Server struct {
@@ -71,7 +70,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 			return nil, errors.Wrap(err, "failed to retrieve system secret session name")
 		}
 	}
-	
+
 	s.Secret = secret
 	apiV1Service := apiv1.NewAPIV1Service(s.Secret, profile, store, s.telegramBot)
 	apiV2Service := apiv2.NewAPIV2Service(s.Secret, profile, store, s.Profile.Port+1)
@@ -83,9 +82,16 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 
 	// ######## CONNECT START
 	e.Use(connect.Create(os.Getenv("SECRET_KEY")))
-	accessTokenCache := cache.New()
+
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// Check if the user is already logged in.
+			cookieToken := apiv1.FindAccessToken(c)
+			if cookieToken != "" {
+				return next(c)
+			}
+
+			// If the user is not logged in, try to login with connect.
 			if connectUser, err := connect.GetUser(c); err == nil {
 				ctx := c.Request().Context()
 				user, err := s.Store.GetUser(ctx, &storeX.FindUser{
@@ -119,42 +125,31 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 				}
 
 				logger.Infof("[connect] login user: %s(email: %s)", connectUser.Nickname, connectUser.Email)
-				accessTokenCacheKey := fmt.Sprintf("user:%s:%s", connectUser.Nickname, connectUser.Email)
-				if ok := accessTokenCache.Has(accessTokenCacheKey); !ok {
-					logger.Infof("[connect] login access token cache not found, generate new (cache key: %s) ...", accessTokenCacheKey)
-					accessTokenCache.Set(accessTokenCacheKey, true, time.Hour*24)
 
-					accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, time.Now().Add(auth.AccessTokenDuration), []byte(s.Secret))
-					if err != nil {
-						return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to generate tokens, err: %s", err)).SetInternal(err)
-					}
-
-					if err := apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
-						return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
-					}
-					cookieExp := time.Now().Add(auth.CookieExpDuration)
-
-					// setTokenCookie sets the token to the cookie.
-					setTokenCookie := func(name, token string, expiration time.Time) {
-						cookie := new(http.Cookie)
-						cookie.Name = name
-						cookie.Value = token
-						cookie.Expires = expiration
-						cookie.Path = "/"
-						// Http-only helps mitigate the risk of client side script accessing the protected cookie.
-						cookie.HttpOnly = true
-						cookie.SameSite = http.SameSiteStrictMode
-						c.SetCookie(cookie)
-					}
-
-					setTokenCookie(auth.AccessTokenCookieName, accessToken, cookieExp)
-				} else {
-					logger.Infof("[connect] login access token cache found (cache key: %s), ignore", accessTokenCacheKey)
+				accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, time.Now().Add(auth.AccessTokenDuration), []byte(s.Secret))
+				if err != nil {
+					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to generate tokens, err: %s", err)).SetInternal(err)
 				}
-	
 
-				// @TODO api.userIDContextKey not exported.
-				// c.Set("user-id", user.ID)
+				if err := apiV1Service.UpsertAccessTokenToStore(ctx, user, accessToken); err != nil {
+					return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to upsert access token, err: %s", err)).SetInternal(err)
+				}
+				cookieExp := time.Now().Add(auth.CookieExpDuration)
+
+				// setTokenCookie sets the token to the cookie.
+				setTokenCookie := func(name, token string, expiration time.Time) {
+					cookie := new(http.Cookie)
+					cookie.Name = name
+					cookie.Value = token
+					cookie.Expires = expiration
+					cookie.Path = "/"
+					// Http-only helps mitigate the risk of client side script accessing the protected cookie.
+					cookie.HttpOnly = true
+					cookie.SameSite = http.SameSiteStrictMode
+					c.SetCookie(cookie)
+				}
+
+				setTokenCookie(auth.AccessTokenCookieName, accessToken, cookieExp)
 			}
 
 			return next(c)

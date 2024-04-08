@@ -36,7 +36,7 @@ func extractTokenFromHeader(c echo.Context) (string, error) {
 	return authHeaderParts[1], nil
 }
 
-func findAccessToken(c echo.Context) string {
+func FindAccessToken(c echo.Context) string {
 	// Check the HTTP request header first.
 	accessToken, _ := extractTokenFromHeader(c)
 	if accessToken == "" {
@@ -65,7 +65,7 @@ func JWTMiddleware(server *APIV1Service, next echo.HandlerFunc, secret string) e
 			return next(c)
 		}
 
-		accessToken := findAccessToken(c)
+		accessToken := FindAccessToken(c)
 		if accessToken == "" {
 			// Allow the user to access the public endpoints.
 			if util.HasPrefixes(path, "/o") {
