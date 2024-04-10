@@ -34,6 +34,7 @@
     "create": "Criar",
     "database": "Banco de dados",
     "delete": "Deletar",
+    "description": "Descrição",
     "edit": "Editar",
     "email": "Email",
     "explore": "Explorar",
@@ -70,6 +71,7 @@
     "sign-in-with": "Entrar com {{provider}}",
     "sign-out": "Sair",
     "sign-up": "Registrar",
+    "statistics": "Estatísticas",
     "tags": "Tags",
     "title": "Título",
     "type": "Tipo",
@@ -91,10 +93,7 @@
     "wed": "Qua"
   },
   "editor": {
-    "cancel-edit": "Cancelar edição",
-    "editing": "Editando…",
-    "local": "Local",
-    "placeholder": "Alguma ideia…",
+    "any-thoughts": "Alguma ideia…",
     "save": "Salvar"
   },
   "embed-memo": {
@@ -132,6 +131,7 @@
     }
   },
   "message": {
+    "archived-successfully": "Arquivado com êxito",
     "change-memo-created-time": "Alterar data de criação do memo",
     "change-resource-filename": "Alterar nome do arquivo do recurso",
     "click-to-save-the-image": "Clique para salvar a imagem",
