@@ -32,6 +32,7 @@
     "create": "创建",
     "database": "数据库",
     "delete": "删除",
+    "description": "说明",
     "edit": "编辑",
     "email": "邮箱",
     "explore": "探索",
@@ -68,7 +69,8 @@
     "sign-in-with": "使用 {{provider}} 登录",
     "sign-out": "退出登录",
     "sign-up": "注册",
-    "tags": "全部标签",
+    "statistics": "统计",
+    "tags": "标签",
     "title": "标题",
     "type": "类型",
     "unpin": "取消置顶",
@@ -89,10 +91,7 @@
     "wed": "三"
   },
   "editor": {
-    "cancel-edit": "取消编辑",
-    "editing": "编辑中...",
-    "local": "本地",
-    "placeholder": "此刻的想法...",
+    "any-thoughts": "此刻的想法...",
     "save": "保存"
   },
   "embed-memo": {
@@ -130,6 +129,7 @@
     }
   },
   "message": {
+    "archived-successfully": "归档成功",
     "change-memo-created-time": "更改 Memo 创建时间",
     "change-resource-filename": "更改资源文件名",
     "click-to-save-the-image": "点击保存图片",
@@ -214,6 +214,10 @@
       "email-note": "可选",
       "export-memos": "导出 Memos",
       "nickname-note": "显示在横幅中",
+      "openapi-reset": "重置 OpenAPI 密钥（Key）",
+      "openapi-sample-post": "您好 #memos 来自 {{url}}",
+      "openapi-title": "OpenAPI",
+      "reset-api": "重置 API",
       "title": "账号信息",
       "update-information": "更新个人信息",
       "username-note": "用于登录"
