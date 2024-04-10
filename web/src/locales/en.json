@@ -60,7 +60,11 @@
     "profile": "Profile",
     "inbox": "Inbox",
     "search": "Search",
-    "role": "Role"
+    "role": "Role",
+    "description": "Description",
+    "statistics": "Statistics",
+    "days": "Days",
+    "memos": "Memos"
   },
   "router": {
     "go-to-home": "Go to Home",
@@ -75,11 +79,9 @@
     "repeat-new-password": "Repeat the new password"
   },
   "editor": {
-    "editing": "Editing...",
-    "cancel-edit": "Cancel edit",
     "save": "Save",
-    "placeholder": "Any thoughts...",
-    "local": "Local"
+    "any-thoughts": "Any thoughts...",
+    "add-your-comment-here": "Add your comment here..."
   },
   "memo": {
     "view-detail": "View Detail",
@@ -104,6 +106,12 @@
       "no-comment": "No comment"
     },
     "show-more": "Show more"
+  },
+  "reference": {
+    "add-references": "Add references",
+    "search-bar-placeholder": "Search content",
+    "no-memos-found": "No memos found",
+    "embedded-usage": "Use as Embedded Content"
   },
   "resource": {
     "no-resources": "No resources.",
@@ -308,6 +316,7 @@
     "no-data": "No data found.",
     "memos-ready": "all memos are ready",
     "resource-ready": "all resource are ready",
+    "archived-successfully": "Archived successfully",
     "restored-successfully": "Restored successfully",
     "memo-updated-datetime": "Memo created datetime changed.",
     "invalid-created-datetime": "Invalid created datetime.",
