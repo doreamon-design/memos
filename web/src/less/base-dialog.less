@@ -11,6 +11,12 @@
 
   > .dialog-container {
     @apply max-w-full shadow flex flex-col justify-start items-start bg-white dark:bg-zinc-800 dark:text-gray-300 p-4 rounded-lg;
+    // width: 100%;
+    min-width: 800px;
+    @media screen and (max-width: 768px) {
+      width: 100%;
+      min-width: 100%;
+    }
 
     > .dialog-header-container {
       @apply flex flex-row justify-between items-center w-full mb-4;

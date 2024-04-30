@@ -30,6 +30,7 @@ import { MemoEditorContext } from "./types";
 
 interface Props {
   className?: string;
+  style?: React.CSSProperties;
   editorClassName?: string;
   cacheKey?: string;
   memoId?: number;
@@ -394,6 +395,7 @@ const MemoEditor = (props: Props) => {
         className={`${
           className ?? ""
         } relative w-full flex flex-col justify-start items-start bg-white dark:bg-zinc-800 px-4 pt-4 rounded-lg border border-gray-200 dark:border-zinc-700`}
+        style={props.style}
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onDrop={handleDropEvent}
