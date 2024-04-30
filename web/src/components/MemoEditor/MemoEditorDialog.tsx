@@ -64,6 +64,9 @@ const MemoEditorDialog: React.FC<Props> = ({ memoId, cacheKey, relationList, des
             // minHeight: '60vh',
             flex: 1,
           }}
+          editorStyle={{
+            maxHeight: !isFullscreen ? 512 : 'calc(100vh - 200px)',
+          }}
           cacheKey={`memo-editor-${cacheKey || memoId}`}
           memoId={memoId}
           relationList={relationList}

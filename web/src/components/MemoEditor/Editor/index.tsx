@@ -19,6 +19,7 @@ export interface EditorRefActions {
 
 interface Props {
   className: string;
+  style?: React.CSSProperties;
   initialContent: string;
   placeholder: string;
   tools?: ReactNode;
@@ -27,7 +28,7 @@ interface Props {
 }
 
 const Editor = forwardRef(function Editor(props: Props, ref: React.ForwardedRef<EditorRefActions>) {
-  const { className, initialContent, placeholder, onPaste, onContentChange: handleContentChangeCallback } = props;
+  const { className, style, initialContent, placeholder, onPaste, onContentChange: handleContentChangeCallback } = props;
   const editorRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -151,6 +152,7 @@ const Editor = forwardRef(function Editor(props: Props, ref: React.ForwardedRef<
         className,
       )}
       style={{
+        ...style,
         flex: 1,
       }}
     >

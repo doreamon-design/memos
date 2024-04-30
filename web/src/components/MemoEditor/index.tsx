@@ -31,6 +31,7 @@ import { MemoEditorContext } from "./types";
 interface Props {
   className?: string;
   style?: React.CSSProperties;
+  editorStyle?: React.CSSProperties;
   editorClassName?: string;
   cacheKey?: string;
   memoId?: number;
@@ -403,7 +404,11 @@ const MemoEditor = (props: Props) => {
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
       >
-        <Editor ref={editorRef} {...editorConfig} />
+        <Editor
+          style={props.editorStyle}
+          ref={editorRef}
+          {...editorConfig}
+        />
         <ResourceListView resourceList={state.resourceList} setResourceList={handleSetResourceList} />
         <RelationListView relationList={referenceRelations} setRelationList={handleSetRelationList} />
         <div className="relative w-full flex flex-row justify-between items-center pt-2" onFocus={(e) => e.stopPropagation()}>
