@@ -17,7 +17,14 @@ const ResourceListView = (props: Props) => {
   return (
     <>
       {resourceList.length > 0 && (
-        <div className="w-full flex flex-row justify-start flex-wrap gap-2 mt-2">
+        <div
+          className="w-full flex flex-row justify-start flex-wrap gap-2 mt-2"
+          style={{
+            maxHeight: 100,
+            overflow: 'hidden',
+            overflowY: 'auto',
+          }}
+        >
           {resourceList.map((resource) => {
             return (
               <div
