@@ -19,6 +19,7 @@ export interface EditorRefActions {
 
 interface Props {
   className: string;
+  style?: React.CSSProperties;
   initialContent: string;
   placeholder: string;
   tools?: ReactNode;
@@ -27,7 +28,7 @@ interface Props {
 }
 
 const Editor = forwardRef(function Editor(props: Props, ref: React.ForwardedRef<EditorRefActions>) {
-  const { className, initialContent, placeholder, onPaste, onContentChange: handleContentChangeCallback } = props;
+  const { className, style, initialContent, placeholder, onPaste, onContentChange: handleContentChangeCallback } = props;
   const editorRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -147,9 +148,13 @@ const Editor = forwardRef(function Editor(props: Props, ref: React.ForwardedRef<
   return (
     <div
       className={classNames(
-        "flex flex-col justify-start items-start relative w-full h-auto max-h-[256px] bg-inherit dark:text-gray-300",
+        "flex flex-col justify-start items-start relative w-full h-auto min-h-[56px] bg-inherit dark:text-gray-300",
         className,
       )}
+      style={{
+        ...style,
+        flex: 1,
+      }}
     >
       <textarea
         className="w-full h-full my-1 text-base resize-none overflow-x-hidden overflow-y-auto bg-transparent outline-none whitespace-pre-wrap word-break"

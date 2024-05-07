@@ -30,6 +30,8 @@ import { MemoEditorContext } from "./types";
 
 interface Props {
   className?: string;
+  style?: React.CSSProperties;
+  editorStyle?: React.CSSProperties;
   editorClassName?: string;
   cacheKey?: string;
   memoId?: number;
@@ -394,6 +396,7 @@ const MemoEditor = (props: Props) => {
         className={`${
           className ?? ""
         } relative w-full flex flex-col justify-start items-start bg-white dark:bg-zinc-800 px-4 pt-4 rounded-lg border border-gray-200 dark:border-zinc-700`}
+        style={props.style}
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onDrop={handleDropEvent}
@@ -401,7 +404,11 @@ const MemoEditor = (props: Props) => {
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
       >
-        <Editor ref={editorRef} {...editorConfig} />
+        <Editor
+          style={props.editorStyle}
+          ref={editorRef}
+          {...editorConfig}
+        />
         <ResourceListView resourceList={state.resourceList} setResourceList={handleSetResourceList} />
         <RelationListView relationList={referenceRelations} setRelationList={handleSetRelationList} />
         <div className="relative w-full flex flex-row justify-between items-center pt-2" onFocus={(e) => e.stopPropagation()}>
