@@ -4,6 +4,23 @@ import { Resource } from "@/types/proto/api/v2/resource_service";
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || "";
 axios.defaults.withCredentials = true;
 
+let isRefreshing = false;
+axios.interceptors.response.use(response => {
+  return response;
+}, error => {
+  if (error.response.status === 401) {
+    if (isRefreshing) {
+      return;
+    }
+
+    isRefreshing = true;
+    window.location.reload();
+    return;
+  }
+
+  return Promise.reject(error);
+});
+
 export function getSystemStatus() {
   return axios.get<SystemStatus>("/api/v1/status");
 }
