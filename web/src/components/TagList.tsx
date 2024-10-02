@@ -1,9 +1,13 @@
+import { Dropdown, Menu, MenuButton, MenuItem } from "@mui/joy";
 import { useEffect, useState } from "react";
 import useToggle from "react-use/lib/useToggle";
 import { useFilterStore, useTagStore } from "@/store/module";
+import { useMemoList } from "@/store/v1";
 import { useTranslate } from "@/utils/i18n";
 import showCreateTagDialog from "./CreateTagDialog";
+import { showCommonDialog } from "./Dialog/CommonDialog";
 import Icon from "./Icon";
+import showRenameTagDialog from "./RenameTagDialog";
 
 interface Tag {
   key: string;
@@ -15,13 +19,14 @@ const TagList = () => {
   const t = useTranslate();
   const filterStore = useFilterStore();
   const tagStore = useTagStore();
+  const memoList = useMemoList();
   const tagsText = tagStore.state.tags;
   const filter = filterStore.state;
   const [tags, setTags] = useState<Tag[]>([]);
 
   useEffect(() => {
     tagStore.fetchTags();
-  }, []);
+  }, [memoList.size()]);
 
   useEffect(() => {
     const sortedTags = Array.from(tagsText).sort();
@@ -68,17 +73,17 @@ const TagList = () => {
   }, [tagsText]);
 
   return (
-    <div className="flex flex-col justify-start items-start w-full mt-2 h-auto shrink-0 flex-nowrap hide-scrollbar">
-      <div className="flex flex-row justify-start items-center w-full px-4">
+    <div className="flex flex-col justify-start items-start w-full mt-3 px-1 h-auto shrink-0 flex-nowrap hide-scrollbar">
+      <div className="flex flex-row justify-start items-center w-full">
         <span className="text-sm leading-6 font-mono text-gray-400">{t("common.tags")}</span>
         <button
           onClick={() => showCreateTagDialog()}
-          className="flex flex-col justify-center items-center w-5 h-5 bg-gray-200 dark:bg-zinc-700 rounded ml-2 hover:shadow"
+          className="flex flex-col justify-center items-center w-5 h-5 bg-gray-200 dark:bg-zinc-800 rounded ml-2 hover:shadow"
         >
           <Icon.Plus className="w-4 h-4 text-gray-400" />
         </button>
       </div>
-      <div className="flex flex-col justify-start items-start relative w-full h-auto flex-nowrap mt-2 mb-2">
+      <div className="flex flex-col justify-start items-start relative w-full h-auto flex-nowrap">
         {tags.map((t, idx) => (
           <TagItemContainer key={t.text + "-" + idx} tag={t} tagQuery={filter.tag} />
         ))}
@@ -93,7 +98,9 @@ interface TagItemContainerProps {
 }
 
 const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContainerProps) => {
+  const t = useTranslate();
   const filterStore = useFilterStore();
+  const tagStore = useTagStore();
   const { tag, tagQuery } = props;
   const isActive = tagQuery === tag.text;
   const hasSubTags = tag.subTags.length > 0;
@@ -112,19 +119,46 @@ const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContain
     toggleSubTags();
   };
 
+  const handleDeleteTag = async () => {
+    showCommonDialog({
+      title: "Delete Tag",
+      content: "Are you sure to delete this tag?",
+      style: "danger",
+      dialogName: "delete-tag-dialog",
+      onConfirm: async () => {
+        await tagStore.deleteTag(tag.text);
+      },
+    });
+  };
+
   return (
     <>
-      <div
-        className="relative group flex flex-row justify-between items-center w-full h-10 py-0 px-4 mt-px first:mt-1 rounded-lg text-base cursor-pointer select-none shrink-0 hover:opacity-60"
-        onClick={handleTagClick}
-      >
+      <div className="relative group flex flex-row justify-between items-center w-full h-8 py-0 mt-px first:mt-1 rounded-lg text-base sm:text-sm cursor-pointer select-none shrink-0 hover:opacity-80">
         <div
-          className={`flex flex-row justify-start items-center truncate shrink leading-5 mr-1 text-black dark:text-gray-200 ${
-            isActive && "text-green-600"
+          className={`flex flex-row justify-start items-center truncate shrink leading-5 mr-1 text-gray-600 dark:text-gray-400 ${
+            isActive && "!text-blue-600"
           }`}
         >
-          <span className="block w-4 shrink-0">#</span>
-          <span className="truncate">{tag.key}</span>
+          <Dropdown>
+            <MenuButton slots={{ root: "div" }}>
+              <div className="shrink-0">
+                <Icon.Hash className="w-4 h-auto shrink-0 opacity-60 mr-1" />
+              </div>
+            </MenuButton>
+            <Menu size="sm" placement="bottom-start">
+              <MenuItem onClick={() => showRenameTagDialog({ tag: tag.text })}>
+                <Icon.Edit3 className="w-4 h-auto" />
+                {t("common.rename")}
+              </MenuItem>
+              <MenuItem color="danger" onClick={handleDeleteTag}>
+                <Icon.Trash className="w-4 h-auto" />
+                {t("common.delete")}
+              </MenuItem>
+            </Menu>
+          </Dropdown>
+          <span className="truncate" onClick={handleTagClick}>
+            {tag.key}
+          </span>
         </div>
         <div className="flex flex-row justify-end items-center">
           {hasSubTags ? (
@@ -132,14 +166,14 @@ const TagItemContainer: React.FC<TagItemContainerProps> = (props: TagItemContain
               className={`flex flex-row justify-center items-center w-6 h-6 shrink-0 transition-all rotate-0 ${showSubTags && "rotate-90"}`}
               onClick={handleToggleBtnClick}
             >
-              <Icon.ChevronRight className="w-5 h-5 opacity-80 dark:text-gray-400" />
+              <Icon.ChevronRight className="w-5 h-5 opacity-40 dark:text-gray-400" />
             </span>
           ) : null}
         </div>
       </div>
       {hasSubTags ? (
         <div
-          className={`w-full flex flex-col justify-start items-start h-auto ml-5 pl-1 border-l-2 border-l-gray-200 dark:border-l-gray-400 ${
+          className={`w-[calc(100%-0.5rem)] flex flex-col justify-start items-start h-auto ml-2 pl-2 border-l-2 border-l-gray-200 dark:border-l-zinc-800 ${
             !showSubTags && "!hidden"
           }`}
         >

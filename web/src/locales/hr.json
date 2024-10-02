@@ -3,8 +3,7 @@
     "about-memos": "O Memo aplikaciji",
     "memos-description": "Memo je web bazirana aplikacija koju možeš koristiti za pisanje, organiziranje i dijeljenje bilješki.",
     "no-server-description": "Za ovaj server nije konfiguriran opis.",
-    "other-projects": "Drugi projekti",
-    "powered-by": "Powered by"
+    "other-projects": "Drugi projekti"
   },
   "amount-text": {
     "memo": "MEMO"
@@ -27,7 +26,6 @@
     "beta": "Beta",
     "cancel": "Otkaži",
     "change": "Promijeni",
-    "changed": "promijenjeno",
     "clear": "Očisti",
     "close": "Zatvori",
     "confirm": "Potvrdi",
@@ -36,11 +34,8 @@
     "delete": "Obriši",
     "edit": "Uredi",
     "email": "Email",
-    "expand": "Proširi",
     "explore": "Istraži",
     "filter": "Filtriraj",
-    "filter-period": "{{from}} do {{to}}",
-    "fold": "Skupi",
     "home": "Glavna",
     "image": "Slika",
     "language": "Jezik",
@@ -76,14 +71,9 @@
     "update": "Obnovi",
     "upload": "Prenesi",
     "username": "Korisničko ime",
-    "vacuum": "Vakuumiraj",
     "version": "Verzija",
     "visibility": "Vidljivost",
     "yourself": "Ti"
-  },
-  "daily-review": {
-    "no-memos": "Ups. Ovdje nema ničega.",
-    "title": "Pregled dana"
   },
   "days": {
     "fri": "Pet",
@@ -96,12 +86,9 @@
   },
   "editor": {
     "cancel-edit": "Otkaži uređivanje",
-    "cant-empty": "Sadržaj ne može biti prazan",
     "editing": "Uređivanje...",
     "local": "Lokalno",
-    "only-image-supported": "Samo slike su podržane.",
     "placeholder": "Piši... piši mi...",
-    "resources": "Resursi",
     "save": "Sačuvaj"
   },
   "embed-memo": {
@@ -110,13 +97,9 @@
     "text": "Kopiraj i podijeli kod ispod na svom blogu ili web stranici.",
     "title": "Ugradi Memo"
   },
-  "heatmap": {
-    "day": "dan",
-    "days": "dana",
-    "memo-in": "memo u {{period}}",
-    "memo-on": "{{amount}} memo  {{date}}",
-    "memos-in": "memoa u {{period}}",
-    "memos-on": "{{amount}} memoa  {{date}}"
+  "inbox": {
+    "memo-comment": "{{user}} je komentirao tvoj {{memo}}.",
+    "version-update": "Nova verzija {{version}} je dostupna!"
   },
   "memo": {
     "archived-at": "Arhivirano u",
@@ -147,7 +130,6 @@
     "click-to-save-the-image": "Klikni da spremiš sliku",
     "copied": "Kopirano",
     "count-selected-resources": "Ukupno odabrano",
-    "file-exceeds-upload-limit-of": "Fajl {{file}} premašuje limit za upload koji je {{size}} MiB",
     "fill-all": "Molimo, popuni sva polja.",
     "fill-form": "Please fill out this form",
     "fill-server-name": "Molim, unesi ime servera",
@@ -162,9 +144,7 @@
     "memos-ready": "svi memoi su spremni 🎉",
     "new-password-not-match": "Nove lozinke nisu jednake.",
     "no-data": "Nisu nađeni podaci.",
-    "page-not-found": "404 - Stranica nije nađena 😥",
     "password-changed": "Lozinka je promijenjena",
-    "password-login-disabled": "last identity provider se ne smije maknuti kada je prijava lozinkom onemogućena",
     "password-not-match": "Lozinke nisu jednake.",
     "private-only": "Ovaj je memo privatan.",
     "resource-filename-updated": "Resource filename je promijenjeno.",
@@ -180,7 +160,6 @@
     "succeed-update-customized-profile": "Profil je uspješno izmijenjen.",
     "succeed-vacuum-database": "Vakuumiranje databaze je uspjelo",
     "update-succeed": "Obnavljanje aplikacije je uspjelo!🎉",
-    "updating-setting-failed": "Obnavljanje postavki nije uspjelo",
     "user-not-found": "Korisnik nije nađen"
   },
   "resource": {
@@ -253,20 +232,11 @@
     "my-account": "Moj račun",
     "preference": "Postavke",
     "preference-section": {
-      "auto-collapse": "Auto Collapse",
-      "created_ts": "Vrijeme stvaranja",
-      "daily-review-time-offset": "Daily Review Time Offset",
       "default-memo-sort-option": "Memo display vrijeme",
       "default-memo-visibility": "Zadana vidljivost memoa",
-      "default-resource-visibility": "Zadana resource vidljivost",
-      "editor-font-style": "Editor font stil",
-      "enable-double-click": "Omogući uređivanje duplim klikom",
-      "enable-folding-memo": "Omogući folding memo",
-      "mobile-editor-style": "Mobile editor stil",
       "telegram-user-id": "Telegram UserID",
       "telegram-user-id-placeholder": "Send any words to Your Telegram Bot to get",
-      "theme": "Tema",
-      "updated_ts": "Vrijeme ažuriranja"
+      "theme": "Tema"
     },
     "sso": "SSO",
     "sso-section": {
@@ -277,6 +247,7 @@
       "create-sso": "Stvori SSO",
       "custom": "Custom",
       "delete-sso": "Potvrdi brisanje",
+      "disabled-password-login-warning": "Prijava lozinkom je onemogućena,",
       "display-name": "Prikaži ime",
       "identifier": "Identifikator",
       "identifier-filter": "Identifier Filter",
@@ -310,7 +281,7 @@
       "s3-compatible-url": "S3 kompatibilan URL",
       "secretkey": "Tajni ključ",
       "secretkey-placeholder": "Tajni ključ / Pristupni Ključ",
-      "storage-services-list": "Storage service list",
+      "storage-services": "Storage services",
       "type-database": "Databaza",
       "type-local": "Local",
       "update-a-service": "Ažuriraj service",
@@ -330,11 +301,8 @@
       "additional-style": "Dodatni stil",
       "additional-style-placeholder": "Dodatni CSS kod",
       "allow-user-signup": "Dopusti registraciju drugih korisnika",
-      "auto-backup-interval": "Interval u kojem će se izvršavati automatski backup (u sekundama)",
-      "auto-backup-interval-hint": "Unesi 0 kako bi onemogućio automatski backup. Nakon mijenjanja ove vrijednosti potreban je reboot.",
       "customize-server": {
         "appearance": "Izgled Servera",
-        "default": "Osnovno je memoi",
         "description": "Opis",
         "icon-url": "URL ikone",
         "locale": "Server Locale",
@@ -346,7 +314,7 @@
       "disable-public-memos": "Onemogući javne memoe",
       "display-with-updated-time": "Prikaži sa obnovljenim vremenom",
       "enable-password-login": "Omogući prijavu lozinkom",
-      "ignore-version-upgrade": "Ignoriraj nadogradnju",
+      "enable-password-login-warning": "Ovo će omogućiti prijavu lozinkom za sve korisnike.",
       "max-upload-size": "Maximalna veličina uploada (MiB)",
       "max-upload-size-hint": "Preporučena vrijednost je 32 MiB.",
       "server-name": "Ime servera",
@@ -355,7 +323,7 @@
       "telegram-bot-token-placeholder": "Tvoj Telegram Bot token"
     }
   },
-  "tag-list": {
+  "tag": {
     "all-tags": "Svi Tagovi",
     "create-tag": "Stvori Tag",
     "hide": "Sakrij",

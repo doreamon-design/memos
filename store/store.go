@@ -9,24 +9,28 @@ import (
 
 // Store provides database access to all raw objects.
 type Store struct {
-	Profile            *profile.Profile
-	driver             Driver
-	systemSettingCache sync.Map // map[string]*SystemSetting
-	userCache          sync.Map // map[int]*User
-	userSettingCache   sync.Map // map[string]*UserSetting
-	idpCache           sync.Map // map[int]*IdentityProvider
+	Profile                 *profile.Profile
+	driver                  Driver
+	workspaceSettingCache   sync.Map // map[string]*WorkspaceSetting
+	workspaceSettingV1Cache sync.Map // map[string]*storepb.WorkspaceSetting
+	userCache               sync.Map // map[int]*User
+	userSettingCache        sync.Map // map[string]*UserSetting
+	idpCache                sync.Map // map[int]*IdentityProvider
 }
 
 // New creates a new instance of Store.
 func New(driver Driver, profile *profile.Profile) *Store {
 	return &Store{
-		Profile: profile,
 		driver:  driver,
+		Profile: profile,
 	}
 }
 
-func (s *Store) BackupTo(ctx context.Context, filename string) error {
-	return s.driver.BackupTo(ctx, filename)
+func (s *Store) MigrateManually(ctx context.Context) error {
+	if err := s.MigrateWorkspaceSetting(ctx); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) Vacuum(ctx context.Context) error {

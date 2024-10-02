@@ -17,12 +17,19 @@ const ResourceListView = (props: Props) => {
   return (
     <>
       {resourceList.length > 0 && (
-        <div className="w-full flex flex-row justify-start flex-wrap gap-2 mt-2">
+        <div
+          className="w-full flex flex-row justify-start flex-wrap gap-2 mt-2"
+          style={{
+            maxHeight: 100,
+            overflow: 'hidden',
+            overflowY: 'auto',
+          }}
+        >
           {resourceList.map((resource) => {
             return (
               <div
                 key={resource.id}
-                className="max-w-full flex flex-row justify-start items-center flex-nowrap gap-x-1 bg-gray-100 dark:bg-zinc-800 px-2 py-1 rounded text-gray-500"
+                className="max-w-full flex flex-row justify-start items-center flex-nowrap gap-x-1 bg-zinc-100 dark:bg-zinc-900 px-2 py-1 rounded text-gray-500 dark:text-gray-400"
               >
                 <ResourceIcon resource={resource} className="!w-4 !h-4 !opacity-100" />
                 <span className="text-sm max-w-[8rem] truncate">{resource.filename}</span>

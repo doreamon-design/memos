@@ -1,11 +1,8 @@
 package telegram
 
 import (
-	"path"
-
-	"go.uber.org/zap"
-
-	"github.com/usememos/memos/internal/log"
+	"log/slog"
+	"path/filepath"
 )
 
 type Attachment struct {
@@ -27,11 +24,9 @@ func (b Attachment) GetMimeType() string {
 		return b.MimeType
 	}
 
-	mime, ok := mimeTypes[path.Ext(b.FileName)]
+	mime, ok := mimeTypes[filepath.Ext(b.FileName)]
 	if !ok {
-		// Handle unknown file extension
-		log.Warn("Unknown file type for ", zap.String("filename", b.FileName))
-
+		slog.Warn("Unknown file extension", slog.String("file", b.FileName))
 		return "application/octet-stream"
 	}
 

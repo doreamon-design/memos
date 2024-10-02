@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import Icon from "@/components/Icon";
-import * as api from "@/helpers/api";
+import { authServiceClient } from "@/grpcweb";
 import { absolutifyLink } from "@/helpers/utils";
-import { useUserStore } from "@/store/module";
+import useNavigateTo from "@/hooks/useNavigateTo";
+import { useUserStore } from "@/store/v1";
 import { useTranslate } from "@/utils/i18n";
 
 interface State {
@@ -15,6 +16,7 @@ interface State {
 
 const AuthCallback = () => {
   const t = useTranslate();
+  const navigateTo = useNavigateTo();
   const [searchParams] = useSearchParams();
   const userStore = useUserStore();
   const [state, setState] = useState<State>({
@@ -30,16 +32,20 @@ const AuthCallback = () => {
       const redirectUri = absolutifyLink("/auth/callback");
       const identityProviderId = Number(last(state.split("-")));
       if (identityProviderId) {
-        api
-          .signinWithSSO(identityProviderId, code, redirectUri)
-          .then(async () => {
+        authServiceClient
+          .signInWithSSO({
+            idpId: identityProviderId,
+            code,
+            redirectUri,
+          })
+          .then(async ({ user }) => {
             setState({
               loading: false,
               errorMessage: "",
             });
-            const user = await userStore.doSignIn();
             if (user) {
-              window.location.href = "/";
+              await userStore.fetchCurrentUser();
+              navigateTo("/");
             } else {
               toast.error(t("message.login-failed"));
             }
